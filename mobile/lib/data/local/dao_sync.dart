@@ -76,7 +76,7 @@ class DaoSync {
     return _comMeta(rows.first);
   }
 
-  /// Linha do cache de um filho (ação/monitoramento) pela chave inteira.
+  /// linha do cache de um filho (acao/monitoramento) pela chave inteira.
   Future<Map<String, dynamic>?> porId(Recurso r, Object id) async {
     final d = await _db;
     final rows = await d.query(r.tabela, where: '${r.pk} = ?', whereArgs: [id]);
@@ -99,8 +99,8 @@ class DaoSync {
 
   Map<String, dynamic> _comMeta(Map<String, Object?> row) {
     final json = jsonDecode(row['json'] as String) as Map<String, dynamic>;
-    // Autocura: o remapeamento pós-sync troca a chave da linha mas pode não
-    // ter reescrito o id dentro do JSON.
+    // autocura: o remapeamento pos-sync troca a chave da linha, mas pode
+    // ter deixado o id de fora do json — garante que fica consistente
     if (row['uuid'] != null) json['uuid'] ??= row['uuid'];
     if (row['id'] != null) json['id'] ??= row['id'];
     json['pendente_sync'] = (row['pendente'] as int? ?? 0) == 1;
@@ -127,7 +127,7 @@ class DaoSync {
   Future<void> aplicarDoServidor(Recurso r, Map<String, dynamic> json) async {
     final d = await _db;
     final pk = json[r.pk];
-    // Não sobrescreve um registro com alteração local pendente.
+    // nao sobrescreve um registro que tem alteracao local ainda pendente
     final pendentes = await d.query(
       r.tabela,
       where: '${r.pk} = ? AND pendente = 1',
@@ -178,8 +178,9 @@ class DaoSync {
     await d.delete(r.tabela, where: '${r.pk} = ?', whereArgs: [chave]);
   }
 
-  /// Enfileira uma mutação, colapsando com o que já estiver pendente para a
-  /// mesma chave (evita fila inconsistente após várias edições offline).
+  /// enfileira uma mutacao, colapsando com o que ja tiver pendente pra
+  /// mesma chave — evita fila zoada depois de varias edicoes offline
+  /// seguidas (tipo editar o mesmo risco 3x sem internet).
   Future<void> enfileirar(
     Recurso r,
     String operacao,
@@ -270,8 +271,8 @@ class DaoSync {
     );
   }
 
-  /// Depois que um `criar` de risco sincroniza, troca a chave temporária pelo
-  /// UUID real em todas as tabelas e itens de fila.
+  /// depois que um "criar" de risco sincroniza, troca a chave temporaria
+  /// pelo uuid real em todas as tabelas e nos itens da fila.
   Future<void> remapearRisco(String local, String real) async {
     final d = await _db;
     await d.transaction((t) async {
@@ -284,7 +285,7 @@ class DaoSync {
           ? <String, dynamic>{}
           : jsonDecode(atual.first['json'] as String) as Map<String, dynamic>;
       json['uuid'] = real;
-      // já sincronizado — deixa o aplicarDoServidor seguinte sobrescrever.
+      // ja sincronizado — deixa o proximo aplicarDoServidor sobrescrever
       await t.update(
         'cache_riscos',
         {'uuid': real, 'risco_uuid': real, 'json': jsonEncode(json), 'pendente': 0},
@@ -333,7 +334,8 @@ class DaoSync {
           );
         }
       }
-      // redirecionamento p/ telas abertas com a chave temporária
+      // pra telas abertas ainda usando a chave temporaria conseguirem
+      // redirecionar pro uuid real
       await t.insert('cache_estatico', {
         'chave': 'remap:$local',
         'json': real,
@@ -341,7 +343,7 @@ class DaoSync {
     });
   }
 
-  /// UUID real de um risco criado offline, se já foi sincronizado.
+  /// uuid real de um risco criado offline, se ja tiver sincronizado.
   Future<String?> uuidRemapeado(String local) async {
     final d = await _db;
     final r = await d.query(

@@ -4,10 +4,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-/// Abre a câmera ou a galeria (conforme [origem]) e copia a foto para um
-/// arquivo permanente no diretório de documentos do app — sobrevive a
-/// fechar o app antes de sincronizar. Devolve o caminho do arquivo, ou
-/// `null` se o usuário cancelou.
+/// abre a camera ou a galeria (conforme a origem) e copia a foto pra um
+/// arquivo permanente no diretorio de documentos do app — sobrevive mesmo
+/// se fechar o app antes de sincronizar. devolve o caminho do arquivo, ou
+/// null se o usuario cancelou.
 Future<String?> tirarFotoEvidencia({
   ImageSource origem = ImageSource.camera,
   Future<XFile?> Function(ImageSource)? camera,

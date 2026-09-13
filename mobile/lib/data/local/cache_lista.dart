@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'banco.dart';
 
-/// Busca uma lista da API e a guarda no cache estático. Se a rede falhar e
-/// houver cache, devolve o cache — para os selects dos formulários (unidades,
-/// PDI) funcionarem offline.
+/// busca uma lista da api e guarda no cache estatico. se a rede falhar e
+/// tiver cache salvo, devolve o cache — e assim que os selects dos
+/// formularios (unidades, pdi) continuam funcionando offline.
 Future<List<T>> listaComCache<T>({
   required String chave,
   required Future<List<Map<String, dynamic>>> Function() buscar,

@@ -19,9 +19,10 @@ class ResumoSync {
   final String? ultimoErro;
 }
 
-/// Empurra a fila de mutações e puxa as novidades do servidor.
-/// Roda em primeiro plano: ao abrir o app, quando a conexão volta e no
-/// pull-to-refresh. Sem isolate / WorkManager.
+/// empurra a fila de mutacoes e puxa as novidades do servidor.
+/// roda em primeiro plano: ao abrir o app, quando a conexao volta e no
+/// pull-to-refresh. sem isolate / workmanager, de proposito — o app e
+/// pequeno, nao precisa da complexidade de rodar isso em background real.
 class MotorSync {
   MotorSync._(this._dio) {
     _sub = Conectividade.instance.aoVoltar.listen((_) => sincronizar());
@@ -31,8 +32,8 @@ class MotorSync {
   static MotorSync get instance =>
       _instance ??= MotorSync._(ApiClient(TokenService()).dio);
 
-  /// Recria o motor com um Dio controlado (testes). Também re-liga o listener
-  /// à instância atual de Conectividade.
+  /// recria o motor com um dio controlado (testes). tambem religa o
+  /// listener na instancia atual de conectividade.
   static void definirParaTeste(Dio dio) {
     _instance?._sub?.cancel();
     _instance = MotorSync._(dio);
@@ -84,7 +85,7 @@ class MotorSync {
     }
   }
 
-  // --- Pull ---
+  // --- pull ---
 
   Future<void> _baixar() async {
     for (final r in Recurso.values) {
@@ -105,7 +106,7 @@ class MotorSync {
     }
   }
 
-  // --- Push ---
+  // --- push ---
 
   Future<void> _enviar() async {
     for (final item in await _dao.fila()) {
@@ -169,29 +170,30 @@ class MotorSync {
       } on DioException catch (e) {
         final code = e.response?.statusCode;
         if (code == 404) {
-          // já não existe no servidor — descarta a operação
+          // ja nao existe mais no servidor, entao descarta a operacao
           await _dao.removerItemFila(item.seq);
           continue;
         }
         if (code != null && code < 500) {
-          // erro de validação: não adianta repetir, remove e segue
+          // erro de validacao do backend — repetir nao vai adiantar nada,
+          // entao so remove da fila e segue pro proximo item
           await _dao.incrementarTentativa(item.seq);
           await _dao.removerItemFila(item.seq);
           continue;
         }
-        rethrow; // rede / 5xx: para o push, tenta de novo depois
+        rethrow; // erro de rede ou 5xx: para o push aqui e tenta de novo depois
       }
     }
   }
 
-  /// Sobrescreve o cache com a versão do servidor, limpando o flag pendente.
+  /// sobrescreve o cache com a versao do servidor e limpa o flag pendente.
   Future<void> _forcarDoServidor(Recurso r, Map<String, dynamic> json) async {
     await _dao.removerLocal(r, r == Recurso.risco ? json['uuid'] : json['id']);
     await _dao.aplicarDoServidor(r, json);
   }
 
-  /// Caminho da foto ainda não enviada de um monitoramento na fila, se o
-  /// arquivo existe no disco.
+  /// caminho da foto ainda nao enviada de um monitoramento na fila, so se
+  /// o arquivo ainda existir no disco.
   Future<String?> _fotoPendente(ItemFila item) async {
     if (item.recurso != Recurso.monitoramento) return null;
     if (item.operacao != 'criar' && item.operacao != 'atualizar') return null;
@@ -204,8 +206,8 @@ class MotorSync {
     return caminho;
   }
 
-  /// Corpo da requisição: `FormData` multipart quando há foto para enviar,
-  /// senão o próprio mapa de texto (JSON).
+  /// corpo da requisicao: FormData multipart quando tem foto pra mandar,
+  /// senao o mapa de texto normal (json).
   Future<Object?> _corpo(
     Map<String, dynamic>? campos,
     String? fotoLocal,

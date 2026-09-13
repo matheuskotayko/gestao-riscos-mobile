@@ -10,9 +10,10 @@ import '../services/token_service.dart';
 import '../sync/conectividade.dart';
 import '../sync/motor_sync.dart';
 
-/// Fonte única do domínio de riscos para as telas. Lê sempre do cache local
-/// (sqflite) e dispara a sincronização em segundo plano. Escritas são
-/// otimistas: aplicadas no cache na hora e enfileiradas para envio.
+/// fonte unica do dominio de riscos pras telas. le sempre do cache local
+/// (sqflite) e dispara a sincronizacao em segundo plano. escritas sao
+/// otimistas: aplica no cache na hora e enfileira pro motor de sync mandar
+/// pro servidor depois.
 class RiscoRepositorio {
   RiscoRepositorio(TokenService tokens) : _riscos = RiscoService(tokens);
 
@@ -28,20 +29,21 @@ class RiscoRepositorio {
   Future<List<Risco>> listar() async {
     var linhas = await _dao.riscos();
     if (linhas.isEmpty && Conectividade.instance.online) {
-      // primeira carga: espera o pull terminar antes de mostrar a lista.
+      // primeira carga: espera o pull terminar antes de mostrar a lista,
+      // senao a tela pisca vazia por um instante
       await MotorSync.instance.sincronizar();
       linhas = await _dao.riscos();
     }
-    // leitura pura do cache: quem quer atualizar dispara MotorSync.sincronizar
-    // explicitamente (abertura de tela, pull-to-refresh, reconexão). Sincronizar
-    // aqui a cada leitura criava loop com o listener de estado da tela.
+    // leitura pura do cache — quem quiser atualizar chama MotorSync.sincronizar
+    // na mao (abrir a tela, pull-to-refresh, reconexao). sincronizar aqui
+    // dentro a cada leitura criava um loop com o listener de estado da tela.
     return linhas.map(Risco.fromJson).toList();
   }
 
   Future<Risco?> obter(String uuid) async {
     final local = await _dao.risco(uuid);
     if (local != null) return Risco.fromJson(local);
-    // tela aberta com a chave temporária de um risco que já sincronizou
+    // tela aberta com a chave temporaria de um risco que ja sincronizou
     if (uuid.startsWith('local-')) {
       final real = await _dao.uuidRemapeado(uuid);
       if (real != null) {
@@ -70,7 +72,7 @@ class RiscoRepositorio {
     return linhas.map(Monitoramento.fromJson).toList();
   }
 
-  /// Histórico é sempre online (log append-only, não crítico offline).
+  /// historico e sempre online (log append-only, nao e critico ter offline).
   Future<List<HistoricoEntrada>> historico(String uuid) async {
     if (!Conectividade.instance.online) return const [];
     try {
@@ -80,7 +82,8 @@ class RiscoRepositorio {
     }
   }
 
-  /// Duplicar exige o servidor (cria uma cópia com os planos de ação).
+  /// duplicar so funciona online (o servidor cria a copia com os planos
+  /// de acao junto, nao da pra fazer isso local).
   Future<Risco> duplicar(String uuid) async {
     final r = await _riscos.duplicar(uuid);
     _sincronizarEmFundo();
@@ -89,6 +92,8 @@ class RiscoRepositorio {
 
   // --- Escrita otimista ---
 
+  // negativo de proposito: id real do servidor sempre e positivo, entao um
+  // id temporario negativo nunca colide com um registro que ja veio de la
   int _tempId() => -DateTime.now().millisecondsSinceEpoch;
 
   Map<String, dynamic> _comNiveis(Map<String, dynamic> p) => {
