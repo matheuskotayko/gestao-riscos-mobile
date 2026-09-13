@@ -24,7 +24,7 @@ class MonitoramentoFormScreen extends StatefulWidget {
   final Monitoramento? monitoramento;
   final RiscoRepositorio? repo;
 
-  /// Injetável em teste — captura/seleção da foto, devolve o caminho local.
+  /// injetavel em teste — captura ou selecao da foto, devolve o caminho local.
   final Future<String?> Function(ImageSource)? capturarFoto;
 
   @override
@@ -41,7 +41,7 @@ class _MonitoramentoFormScreenState extends State<MonitoramentoFormScreen> {
   bool _sujo = false;
   bool _capturandoFoto = false;
 
-  /// Caminho da nova foto tirada nesta edição (ainda não enviada).
+  /// caminho da foto nova tirada nessa edicao (ainda nao enviada).
   String? _fotoPath;
 
   final _resultados = TextEditingController();
@@ -126,7 +126,7 @@ class _MonitoramentoFormScreenState extends State<MonitoramentoFormScreen> {
   @override
   Widget build(BuildContext context) {
     return GuardaForm(
-      sujo: _sujo && !_salvando,
+      sujo: (_sujo || _capturandoFoto) && !_salvando,
       child: Scaffold(
         appBar: AppBar(
           title: Text(_edicao ? 'Editar monitoramento' : 'Novo monitoramento'),

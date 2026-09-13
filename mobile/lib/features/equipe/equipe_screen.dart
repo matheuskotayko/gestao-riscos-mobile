@@ -103,6 +103,7 @@ class _EquipeScreenState extends State<EquipeScreen> {
     try {
       return await showDialog<String>(
         context: context,
+        barrierDismissible: false,
         builder: (_) => AlertDialog(
           title: const Text('Adicionar membro'),
           content: TextField(
@@ -113,13 +114,17 @@ class _EquipeScreenState extends State<EquipeScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+                Navigator.pop(context);
+              },
               child: const Text('Cancelar'),
             ),
             FilledButton(
               onPressed: () {
                 final v = ctrl.text.trim();
                 if (v.isEmpty || int.tryParse(v) == null) return;
+                FocusManager.instance.primaryFocus?.unfocus();
                 Navigator.pop(context, v);
               },
               child: const Text('Adicionar'),

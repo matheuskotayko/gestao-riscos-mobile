@@ -5,9 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/auth_model.dart';
 import '../models/usuario_model.dart';
 
-/// Sessão persistida. O backend emite um JWT de acesso com vida longa: o
-/// token não expira na prática e não há refresh — basta guardá-lo e
-/// enviá-lo no header.
+/// sessao persistida. o backend manda um jwt de acesso com vida longa: na
+/// pratica o token nunca expira e nao tem refresh — so guarda ele e manda
+/// no header de toda requisicao.
 class TokenService {
   static const _storage = FlutterSecureStorage();
 
@@ -29,25 +29,38 @@ class TokenService {
     value: jsonEncode(usuario.toStorageJson()),
   );
 
-  Future<String?> getToken() => _storage.read(key: _keyToken);
+  Future<String?> getToken() => _lerSeguro(_keyToken);
 
   Future<bool> hasToken() async {
-    final t = await _storage.read(key: _keyToken);
+    final t = await _lerSeguro(_keyToken);
     return t != null && t.isNotEmpty;
   }
 
   Future<UsuarioModel?> getUsuario() async {
-    final raw = await _storage.read(key: _keyUsuario);
+    final raw = await _lerSeguro(_keyUsuario);
     if (raw == null || raw.isEmpty) return null;
     return UsuarioModel.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+  }
+
+  /// le do secure storage tolerando dado cifrado ilegivel (tipo quando a
+  /// chave do android keystore fica dessincronizada depois de reinstalar
+  /// o app). sem isso, uma falha de decriptacao no redirect do go_router
+  /// trava a tela preta pra sempre em vez de so cair no login.
+  Future<String?> _lerSeguro(String chave) async {
+    try {
+      return await _storage.read(key: chave);
+    } catch (_) {
+      await _storage.deleteAll();
+      return null;
+    }
   }
 
   Future<void> clear() => _storage.deleteAll();
 }
 
 extension _UsuarioStorage on UsuarioModel {
-  /// Guarda só o necessário para reconstruir o [UsuarioModel] (mesmas chaves
-  /// do JSON da API, para reusar `UsuarioModel.fromJson`).
+  /// guarda so o necessario pra reconstruir o UsuarioModel depois (mesmas
+  /// chaves do json da api, pra reaproveitar o UsuarioModel.fromJson).
   Map<String, dynamic> toStorageJson() => {
     'uuid': uuid,
     'id': id,
