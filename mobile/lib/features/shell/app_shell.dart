@@ -4,6 +4,11 @@ import 'package:go_router/go_router.dart';
 import '../../core/role.dart';
 import '../../data/services/token_service.dart';
 
+// ordem fixa dos branches do StatefulShellRoute em app_router.dart — tem
+// que bater exatamente com a ordem declarada la, é como o navigationShell
+// sabe qual indice de branch corresponde a qual aba.
+const _ordemBranches = ['/riscos', '/dashboard', '/equipe', '/admin', '/perfil'];
+
 /// Abas visíveis para um papel. Pura — testável sem montar o widget.
 List<AbaShell> tabsPara(Role role) => [
   const AbaShell(
@@ -31,9 +36,9 @@ List<AbaShell> tabsPara(Role role) => [
 ];
 
 class AppShell extends StatefulWidget {
-  const AppShell({super.key, required this.child, this.tokens});
+  const AppShell({super.key, required this.navigationShell, this.tokens});
 
-  final Widget child;
+  final StatefulNavigationShell navigationShell;
   final TokenService? tokens;
 
   @override
@@ -56,20 +61,22 @@ class _AppShellState extends State<AppShell> {
     setState(() => _tabs = tabsPara(role));
   }
 
-  int _indexAtual(BuildContext context) {
-    final loc = GoRouterState.of(context).matchedLocation;
-    final i = _tabs.indexWhere((t) => loc.startsWith(t.path));
+  // posicao (dentro das abas visiveis) que corresponde ao branch ativo
+  int _indexAtual() {
+    final path = _ordemBranches[widget.navigationShell.currentIndex];
+    final i = _tabs.indexWhere((t) => t.path == path);
     return i < 0 ? 0 : i;
   }
 
   @override
   Widget build(BuildContext context) {
-    final index = _indexAtual(context);
     return Scaffold(
-      body: widget.child,
+      body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
-        selectedIndex: index,
-        onDestinationSelected: (i) => context.go(_tabs[i].path),
+        selectedIndex: _indexAtual(),
+        onDestinationSelected: (i) => widget.navigationShell.goBranch(
+          _ordemBranches.indexOf(_tabs[i].path),
+        ),
         destinations: [
           for (final t in _tabs)
             NavigationDestination(

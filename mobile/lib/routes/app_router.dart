@@ -38,28 +38,56 @@ GoRouter buildRouter(TokenService tokenService) {
     },
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
-      ShellRoute(
-        builder: (context, state, child) => AppShell(child: child),
-        routes: [
-          GoRoute(
-            path: '/riscos',
-            builder: (context, state) => const RiscosScreen(),
+      // StatefulShellRoute (nao o ShellRoute simples) de proposito: cada aba
+      // ganha seu proprio Navigator. Com ShellRoute simples, a aba ativa e
+      // a UNICA pagina da pilha do router inteiro — e um showDialog aberto
+      // nela (ex.: "Adicionar membro" na Equipe) faz o go_router entender
+      // que a pilha toda "estourou" quando o dialogo fecha, travando o
+      // app numa tela preta sem erro nenhum na hora (só um assert vago no
+      // log). com uma pilha por aba isso nao acontece.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/riscos',
+                builder: (context, state) => const RiscosScreen(),
+              ),
+            ],
           ),
-          GoRoute(
-            path: '/dashboard',
-            builder: (context, state) => const DashboardScreen(),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/dashboard',
+                builder: (context, state) => const DashboardScreen(),
+              ),
+            ],
           ),
-          GoRoute(
-            path: '/equipe',
-            builder: (context, state) => const EquipeScreen(),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/equipe',
+                builder: (context, state) => const EquipeScreen(),
+              ),
+            ],
           ),
-          GoRoute(
-            path: '/admin',
-            builder: (context, state) => const AdminScreen(),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/admin',
+                builder: (context, state) => const AdminScreen(),
+              ),
+            ],
           ),
-          GoRoute(
-            path: '/perfil',
-            builder: (context, state) => const PerfilScreen(),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/perfil',
+                builder: (context, state) => const PerfilScreen(),
+              ),
+            ],
           ),
         ],
       ),
