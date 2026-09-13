@@ -98,13 +98,28 @@ class _EquipeScreenState extends State<EquipeScreen> {
     }
   }
 
+  // fecha o dialogo largando o foco do textfield antes do pop. sem isso,
+  // se o teclado estiver aberto na hora de fechar, o flutter tenta
+  // derrubar o elemento do textfield enquanto ele ainda ta "dependente"
+  // de um inheritedwidget (foco/teclado) — da um assert interno
+  // (_dependents.isEmpty) e a tela quebra. o unfocus + 1 frame de folga
+  // garante que essa dependencia ja foi limpa antes do dialogo sumir.
+  Future<void> _fecharDialogo(BuildContext dialogContext, String? valor) async {
+    FocusScope.of(dialogContext).unfocus();
+    await Future.delayed(const Duration(milliseconds: 50));
+    if (dialogContext.mounted) Navigator.pop(dialogContext, valor);
+  }
+
   Future<String?> _pedirSiape() async {
     final ctrl = TextEditingController();
     try {
       return await showDialog<String>(
         context: context,
-        barrierDismissible: false,
-        builder: (_) => AlertDialog(
+        // builder usa o proprio context do dialogo (nao o da tela de fora)
+        // pra dar Navigator.pop — igual o confirmar() la no app_feedback.dart
+        // faz. usar o context de fora aqui era o bug real por tras da tela
+        // preta ao fechar esse dialogo (contexto errado pra fechar o pop).
+        builder: (dialogContext) => AlertDialog(
           title: const Text('Adicionar membro'),
           content: TextField(
             controller: ctrl,
@@ -114,18 +129,14 @@ class _EquipeScreenState extends State<EquipeScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                FocusManager.instance.primaryFocus?.unfocus();
-                Navigator.pop(context);
-              },
+              onPressed: () => _fecharDialogo(dialogContext, null),
               child: const Text('Cancelar'),
             ),
             FilledButton(
               onPressed: () {
                 final v = ctrl.text.trim();
                 if (v.isEmpty || int.tryParse(v) == null) return;
-                FocusManager.instance.primaryFocus?.unfocus();
-                Navigator.pop(context, v);
+                _fecharDialogo(dialogContext, v);
               },
               child: const Text('Adicionar'),
             ),
@@ -133,7 +144,12 @@ class _EquipeScreenState extends State<EquipeScreen> {
         ),
       );
     } finally {
-      ctrl.dispose();
+      // nao da dispose na hora — o pop resolve o future antes da animacao
+      // de saida do dialog terminar, e ela ainda reconstroi o textfield
+      // com esse controller. dar dispose synchronous aqui derruba ele no
+      // meio da transicao e estoura o _dependents.isEmpty. espera a
+      // transicao (~200ms, mesma familia do delay do unfocus) acabar antes.
+      Future.delayed(const Duration(milliseconds: 300), ctrl.dispose);
     }
   }
 
