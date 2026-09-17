@@ -122,6 +122,8 @@ Descrição completa das tabelas e regras em [docs/banco-de-dados.md](docs/banco
 
 ## Como Rodar
 
+> Passo a passo mais detalhado, incluindo emulador Android e celular físico: [INSTALACAO.md](INSTALACAO.md).
+
 ### API — com Docker (recomendado)
 
 ```bash
