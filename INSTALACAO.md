@@ -97,6 +97,16 @@ O `.env.example` já vem com `API_BASE_URL=http://10.0.2.2:8000`, que é o valor
 
 Não precisa mudar mais nada — `10.0.2.2` já é o endereço que o emulador usa pra alcançar o backend rodando na máquina host, e o `docker-compose.yml` já serve as fotos em `10.0.2.2:9000` por padrão.
 
+**Sem Android Studio (só linha de comando):** dá pra criar e abrir o emulador sem instalar a IDE, usando o [`cmdline-tools`](https://developer.android.com/studio#command-tools) do Android SDK:
+
+```bash
+sdkmanager "platform-tools" "emulator" "platforms;android-35" "system-images;android-35;google_apis;x86_64"
+avdmanager create avd -n gestao -k "system-images;android-35;google_apis;x86_64" -d "pixel_6"
+emulator -avd gestao -no-snapshot &
+adb wait-for-device
+flutter run -d emulator-5554
+```
+
 ### 3B - Celular físico via USB
 
 1. No celular: **Ajustes → Sobre o telefone** → toca 7 vezes em "Número da versão" pra habilitar as **Opções do desenvolvedor**. Depois **Ajustes → Sistema → Opções do desenvolvedor** → liga **Depuração USB**.
