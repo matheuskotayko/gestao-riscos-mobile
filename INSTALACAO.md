@@ -102,10 +102,17 @@ Não precisa mudar mais nada — `10.0.2.2` já é o endereço que o emulador us
 ```bash
 sdkmanager "platform-tools" "emulator" "platforms;android-35" "system-images;android-35;google_apis;x86_64"
 avdmanager create avd -n gestao -k "system-images;android-35;google_apis;x86_64" -d "pixel_6"
+
+# AVD criado por linha de comando vem sem teclado físico — sem isso, o teclado
+# do computador não digita nada no app (só o teclado virtual da tela funciona)
+sed -i 's/^hw.keyboard = no/hw.keyboard = yes/' ~/.android/avd/gestao.avd/config.ini
+
 emulator -avd gestao -no-snapshot &
 adb wait-for-device
 flutter run -d emulator-5554
 ```
+
+O `avdmanager` grava `hw.keyboard = no` no `config.ini` do AVD (o Android Studio grava `yes`), e nesse modo o Android nem registra um teclado físico. A troca só vale a partir do próximo boot do emulador. Pra conferir depois que subir: `adb shell dumpsys input | grep -i keyboard` deve listar `AT Translated Set 2 keyboard`.
 
 ### 3B - Celular físico via USB
 
@@ -171,6 +178,8 @@ Esse é o administrador criado pelo seed. Os demais gestores de demonstração (
 | Erro de conexão só no celular físico | Portas não encaminhadas ou `.env` errado | Refaz `adb reverse tcp:8000 tcp:8000` e `adb reverse tcp:9000 tcp:9000`, confirma `API_BASE_URL=http://localhost:8000` e reinicia o app (hot restart) |
 | Login funciona mas fotos de monitoramento não carregam | `MINIO_PUBLIC_DOMAIN` não bate com o dispositivo usado | Emulador: `10.0.2.2:9000` (padrão). Celular físico: `localhost:9000` com `adb reverse` ativo |
 | `adb devices` mostra `unauthorized` | Prompt de confiança não foi aceito no celular | Olha a tela do aparelho e aceita "Permitir depuração USB?" |
+| Teclado do computador não digita no emulador | AVD criado por `avdmanager` vem com `hw.keyboard = no` | `sed -i 's/^hw.keyboard = no/hw.keyboard = yes/' ~/.android/avd/gestao.avd/config.ini` e reinicia o emulador |
+| Emulador não abre: `FATAL: Running multiple emulators with the same AVD` | Lock de uma execução anterior que não encerrou direito | `rm -f ~/.android/avd/gestao.avd/*.lock` |
 | Mudou o `.env` mas o app continua com o valor antigo | `.env` é lido só na inicialização | Hot restart (`R`) ou `flutter run` de novo — hot reload (`r`) não recarrega assets |
 
 ---
