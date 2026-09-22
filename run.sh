@@ -6,6 +6,18 @@ set -euo pipefail
 AVD="${1:-gestao}"
 cd "$(dirname "$0")"
 
+# Não depender do PATH de quem chamou: procura o SDK e o Flutter nos lugares usuais.
+ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Android/sdk}}"
+PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$HOME/flutter/bin:$PATH"
+
+for cmd in docker adb emulator flutter; do
+  command -v "$cmd" >/dev/null || {
+    echo "ERRO: '$cmd' não encontrado." >&2
+    [ "$cmd" = docker ] || echo "Confere se o SDK está em $ANDROID_HOME e o Flutter em ~/flutter." >&2
+    exit 1
+  }
+done
+
 echo "==> Backend (docker compose)"
 # sem --wait: ele retorna erro quando o minio-init (one-shot) termina
 docker compose up -d
@@ -26,10 +38,16 @@ else
 fi
 
 echo "==> Esperando boot completo"
-adb wait-for-device
-until [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do
-  sleep 3
+for _ in $(seq 120); do   # 4 min de teto; cold boot leva ~50s
+  [ "$(adb get-state 2>/dev/null)" = device ] &&
+    [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = 1 ] && break
+  sleep 2
 done
+if [ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != 1 ]; then
+  echo "ERRO: emulador não subiu. Log: /tmp/emulator-$AVD.log" >&2
+  tail -5 /tmp/emulator-"$AVD".log >&2 2>/dev/null || true
+  exit 1
+fi
 
 echo "==> App (flutter run)"
 cd mobile
