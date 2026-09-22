@@ -19,7 +19,9 @@ if adb devices | grep -q "emulator-.*device$"; then
   echo "    já rodando"
 else
   rm -f ~/.android/avd/"$AVD".avd/*.lock
-  emulator -avd "$AVD" -no-snapshot >/tmp/emulator-"$AVD".log 2>&1 &
+  # sem -no-snapshot: retoma do snapshot salvo (~3s em vez de ~50s de cold boot).
+  # Pra forçar boot limpo: emulator -avd gestao -no-snapshot
+  emulator -avd "$AVD" -no-audio -no-boot-anim >/tmp/emulator-"$AVD".log 2>&1 &
   disown
 fi
 
