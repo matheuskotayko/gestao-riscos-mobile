@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import '../../core/api_error.dart';
 import '../local/dashboard_local.dart';
 import '../models/dashboard_model.dart';
-import '../sync/conectividade.dart';
 import 'api_client.dart';
 import 'token_service.dart';
 
@@ -51,9 +50,11 @@ class FiltroDashboard {
 }
 
 class DashboardService {
-  DashboardService(TokenService tokens) : _client = ApiClient(tokens);
+  /// [dio] so e passado nos testes, pra poder simular a api caindo.
+  DashboardService(TokenService tokens, {Dio? dio})
+    : _dio = dio ?? ApiClient(tokens).dio;
 
-  final ApiClient _client;
+  final Dio _dio;
 
   /// Busca a analítica no servidor. Offline (ou sem rede) reconstrói o mesmo
   /// payload a partir do cache local — ver [dashboardDoCache].
@@ -61,13 +62,17 @@ class DashboardService {
     FiltroDashboard filtro = const FiltroDashboard(),
   ]) async {
     try {
-      final res = await _client.dio.get(
+      final res = await _dio.get(
         '/api/riscos/planos/dashboard/',
         queryParameters: filtro.toQuery(),
       );
       return Dashboard.fromJson(res.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      if (Conectividade.instance.online) throw ApiError.fromDio(e);
+      // sem resposta http = servidor inalcancavel, entao cai no cache. nao da
+      // pra usar Conectividade aqui: ela e otimista (ter wifi nao quer dizer
+      // que a api responde), e o dashboard quebrava com o celular conectado
+      // numa rede que nao alcanca o backend.
+      if (e.response != null) throw ApiError.fromDio(e);
       return dashboardDoCache(filtro);
     }
   }
