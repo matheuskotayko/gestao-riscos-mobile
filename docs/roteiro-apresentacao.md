@@ -87,6 +87,30 @@ dá. Está comentado no código porque parece bug e não é.
 
 Faixas: extremo ≥ 20, alto ≥ 12, moderado ≥ 4, baixo < 4.
 
+**"Essa cardinalidade do modelo ER não está invertida?"**
+
+Pergunta provável, porque a notação (mín,máx) tem duas leituras em circulação e
+o modelo usa a do brModelo, que é a menos intuitiva à primeira vista.
+
+> O par ao lado de uma entidade indica quantas ocorrências **dela** se
+> relacionam com **uma** ocorrência da outra. Ao lado de `macroprocessos` está
+> (1,1): cada risco tem exatamente um macroprocesso. Ao lado de `risco` está
+> (0,n): cada macroprocesso classifica de zero a vários riscos.
+
+Regra para conferir qualquer relacionamento na hora: **o lado marcado (1,1) é o
+"um", e a chave estrangeira fica na tabela do outro lado.** Confere em todos —
+`macroprocessos` é (1,1), então a FK está em `risco`; em Trata o `risco` é
+(1,1), então a FK está em `plano_acao`.
+
+Se insistirem, o argumento decisivo é a própria ferramenta: o modelo lógico foi
+derivado do conceitual pelo brModelo, e as chaves estrangeiras caíram
+exatamente onde o banco real as tem. Na outra leitura, a derivação sairia
+invertida.
+
+Duas ausências conhecidas nos diagramas, caso alguém note: `risco` não mostra
+`latitude`, `longitude` e `endereco`, e `monitoramento` não mostra `foto` —
+campos acrescentados ao sistema depois que os modelos foram desenhados.
+
 ---
 
 ## Antes de apresentar
