@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import '../../core/credencial_offline.dart';
 import '../models/auth_model.dart';
 import '../models/usuario_model.dart';
 
@@ -13,6 +14,7 @@ class TokenService {
 
   static const _keyToken = 'token';
   static const _keyUsuario = 'usuario';
+  static const _keyCredencial = 'credencial_offline';
 
   Future<void> saveSession(LoginResponse res) async {
     await Future.wait([
@@ -28,6 +30,31 @@ class TokenService {
     key: _keyUsuario,
     value: jsonEncode(usuario.toStorageJson()),
   );
+
+  /// guarda o hash da senha pra revalidar o login quando a api nao responder.
+  Future<void> salvarCredencialOffline(
+    String siape,
+    String senha,
+    LoginResponse res,
+  ) => _storage.write(
+    key: _keyCredencial,
+    value: jsonEncode(
+      CredencialOffline.nova(
+        siape: siape,
+        senha: senha,
+        token: res.token,
+        usuario: res.usuario.toStorageJson(),
+      ).toJson(),
+    ),
+  );
+
+  Future<CredencialOffline?> credencialOffline() async {
+    final raw = await _lerSeguro(_keyCredencial);
+    if (raw == null || raw.isEmpty) return null;
+    return CredencialOffline.fromJson(
+      jsonDecode(raw) as Map<String, dynamic>,
+    );
+  }
 
   Future<String?> getToken() => _lerSeguro(_keyToken);
 
@@ -55,7 +82,12 @@ class TokenService {
     }
   }
 
-  Future<void> clear() => _storage.deleteAll();
+  /// encerra a sessao mas preserva a credencial offline: sem ela, sair da
+  /// conta longe do servidor deixaria o app inacessivel.
+  Future<void> clear() async {
+    await _storage.delete(key: _keyToken);
+    await _storage.delete(key: _keyUsuario);
+  }
 }
 
 extension _UsuarioStorage on UsuarioModel {
