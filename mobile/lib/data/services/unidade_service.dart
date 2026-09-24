@@ -11,7 +11,6 @@ class ListaAdminUnidades {
     required this.centros,
     required this.tipos,
   });
-
   final PageResponse<UnidadeModel> pagina;
   final List<String> centros;
   final List<String> tipos;
@@ -19,11 +18,7 @@ class ListaAdminUnidades {
 
 class UnidadeService {
   UnidadeService(TokenService tokens) : _client = ApiClient(tokens);
-
   final ApiClient _client;
-
-  /// `GET /api/usuarios/setores/` — público, sem paginação. Cache-through
-  /// para o select de unidade funcionar offline.
   Future<List<UnidadeModel>> listar() => listaComCache(
     chave: 'unidades',
     fromJson: UnidadeModel.fromJson,
@@ -34,8 +29,6 @@ class UnidadeService {
           .toList();
     }),
   );
-
-  /// `GET /api/usuarios/setores/admin/` — superusuário; busca + filtros.
   Future<ListaAdminUnidades> listarAdmin({
     int page = 1,
     String? busca,
@@ -62,17 +55,13 @@ class UnidadeService {
           .toList(),
     );
   });
-
   Future<void> criar(Map<String, dynamic> payload) => comApiError(() async {
     await _client.dio.post('/api/usuarios/setores/', data: payload);
   });
-
   Future<void> editar(int id, Map<String, dynamic> payload) =>
       comApiError(() async {
         await _client.dio.patch('/api/usuarios/setores/$id/', data: payload);
       });
-
-  /// `POST /api/usuarios/setores/{id}/desativar/` — alterna ativo/inativo.
   Future<void> alternarAtivo(int id) => comApiError(() async {
     await _client.dio.post('/api/usuarios/setores/$id/desativar/');
   });

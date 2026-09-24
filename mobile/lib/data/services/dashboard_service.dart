@@ -13,18 +13,15 @@ class FiltroDashboard {
     this.dataFim,
     this.busca,
   });
-
   final int? setorId;
   final String? dataInicio;
   final String? dataFim;
   final String? busca;
-
   bool get ativo =>
       setorId != null ||
       dataInicio != null ||
       dataFim != null ||
       (busca?.isNotEmpty ?? false);
-
   Map<String, dynamic> toQuery() {
     final q = <String, dynamic>{};
     if (setorId != null) q['setor'] = setorId;
@@ -50,14 +47,9 @@ class FiltroDashboard {
 }
 
 class DashboardService {
-  /// [dio] so e passado nos testes, pra poder simular a api caindo.
   DashboardService(TokenService tokens, {Dio? dio})
     : _dio = dio ?? ApiClient(tokens).dio;
-
   final Dio _dio;
-
-  /// Busca a analítica no servidor. Offline (ou sem rede) reconstrói o mesmo
-  /// payload a partir do cache local — ver [dashboardDoCache].
   Future<Dashboard> carregar([
     FiltroDashboard filtro = const FiltroDashboard(),
   ]) async {
@@ -68,10 +60,6 @@ class DashboardService {
       );
       return Dashboard.fromJson(res.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      // sem resposta http = servidor inalcancavel, entao cai no cache. nao da
-      // pra usar Conectividade aqui: ela e otimista (ter wifi nao quer dizer
-      // que a api responde), e o dashboard quebrava com o celular conectado
-      // numa rede que nao alcanca o backend.
       if (e.response != null) throw ApiError.fromDio(e);
       return dashboardDoCache(filtro);
     }

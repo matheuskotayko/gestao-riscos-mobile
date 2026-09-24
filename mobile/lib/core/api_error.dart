@@ -1,28 +1,19 @@
 import 'package:dio/dio.dart';
 
-/// Normaliza erros da API DRF para uma mensagem exibível.
-///
-/// O backend responde com `{"erro": "mensagem"}` nas views customizadas ou
-/// com um dict de erros de campo (`{"campo": ["msg", ...]}`) na validação
-/// automática do DRF.
 class ApiError implements Exception {
   ApiError(this.message, {this.statusCode, this.fields});
-
   final String message;
   final int? statusCode;
   final Map<String, List<String>>? fields;
-
   factory ApiError.fromDio(DioException e) {
     final status = e.response?.statusCode;
     final data = e.response?.data;
-
     if (data is Map) {
       final erro = data['erro'] ?? data['detail'] ?? data['non_field_errors'];
       if (erro is String) return ApiError(erro, statusCode: status);
       if (erro is List && erro.isNotEmpty) {
         return ApiError(erro.first.toString(), statusCode: status);
       }
-
       final fields = <String, List<String>>{};
       data.forEach((key, value) {
         if (value is List) {
@@ -36,14 +27,11 @@ class ApiError implements Exception {
         return ApiError(first, statusCode: status, fields: fields);
       }
     }
-
     if (data is String && data.isNotEmpty && data.length < 300) {
       return ApiError(data, statusCode: status);
     }
-
     return ApiError(_mensagemPorStatus(status, e.type), statusCode: status);
   }
-
   static String _mensagemPorStatus(int? status, DioExceptionType type) {
     if (type == DioExceptionType.connectionTimeout ||
         type == DioExceptionType.receiveTimeout ||
@@ -71,9 +59,6 @@ class ApiError implements Exception {
   String toString() => message;
 }
 
-/// Mensagem exibível para qualquer erro que chegue num `catch`. Usar sempre
-/// isto ao mostrar erro pro usuário — nunca `'$e'` cru (vaza `DioException`,
-/// `Exception:` etc.).
 String mensagemDeErro(Object erro) {
   if (erro is ApiError) return erro.message;
   if (erro is DioException) return ApiError.fromDio(erro).message;
@@ -81,7 +66,6 @@ String mensagemDeErro(Object erro) {
   return texto.startsWith('Exception: ') ? texto.substring(11) : texto;
 }
 
-/// Executa [fn] convertendo qualquer `DioException` em [ApiError].
 Future<T> comApiError<T>(Future<T> Function() fn) async {
   try {
     return await fn();

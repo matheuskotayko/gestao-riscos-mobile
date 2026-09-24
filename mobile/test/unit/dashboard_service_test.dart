@@ -10,7 +10,6 @@ import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 const _rota = '/api/riscos/planos/dashboard/';
-
 Map<String, dynamic> _risco(String uuid) => {
   'uuid': uuid,
   'setor': 1,
@@ -26,18 +25,11 @@ Map<String, dynamic> _risco(String uuid) => {
   'nivel_residual': 12,
   'ativo': true,
 };
-
-/// Quando a api nao responde, o dashboard tem que vir do cache local mesmo com
-/// o aparelho "online" — foi o que quebrou o app no celular ligado numa rede
-/// que nao alcancava o backend.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
   late Dio dio;
   late DioAdapter adapter;
-
   setUpAll(() => sqfliteFfiInit());
-
   setUp(() async {
     Banco.testDb = await databaseFactoryFfi.openDatabase(
       inMemoryDatabasePath,
@@ -47,17 +39,14 @@ void main() {
       ),
     );
     await DaoSync.instance.aplicarDoServidor(Recurso.risco, _risco('r1'));
-    // otimista de proposito: o aparelho tem rede, o backend e que nao responde
     Conectividade.definirParaTeste(online: true);
     dio = Dio(BaseOptions(baseUrl: 'http://x'));
     adapter = DioAdapter(dio: dio);
   });
-
   tearDown(() async {
     await Banco.testDb?.close();
     Banco.testDb = null;
   });
-
   test('api inalcancavel cai no cache mesmo com o aparelho online', () async {
     adapter.onGet(
       _rota,
@@ -69,16 +58,12 @@ void main() {
         ),
       ),
     );
-
     final dash = await DashboardService(TokenService(), dio: dio).carregar();
-
     expect(dash.totalPlanos, 1);
-    expect(dash.riscosPorNivel.alto, 1); // residual 12 do risco em cache
+    expect(dash.riscosPorNivel.alto, 1);
   });
-
   test('erro com resposta do servidor continua estourando', () async {
     adapter.onGet(_rota, (s) => s.reply(500, {'erro': 'boom'}));
-
     expect(
       () => DashboardService(TokenService(), dio: dio).carregar(),
       throwsA(isA<ApiError>()),

@@ -10,7 +10,6 @@ import '../../data/services/token_service.dart';
 
 class RecuperarSenhaScreen extends StatefulWidget {
   const RecuperarSenhaScreen({super.key});
-
   @override
   State<RecuperarSenhaScreen> createState() => _RecuperarSenhaScreenState();
 }
@@ -19,18 +18,14 @@ enum _Etapa { email, codigo, novaSenha }
 
 class _RecuperarSenhaScreenState extends State<RecuperarSenhaScreen> {
   final _service = RecuperacaoService(TokenService());
-
   _Etapa _etapa = _Etapa.email;
   bool _carregando = false;
-
   final _email = TextEditingController();
   final _codigo = TextEditingController();
   final _senha = TextEditingController();
   final _confirma = TextEditingController();
-
   Timer? _timer;
   int _segundos = 0;
-
   @override
   void dispose() {
     _timer?.cancel();
@@ -155,13 +150,11 @@ class _RecuperarSenhaScreenState extends State<RecuperarSenhaScreen> {
     _Etapa.codigo => _validar,
     _Etapa.novaSenha => _redefinir,
   };
-
   String _rotuloBotao() => switch (_etapa) {
     _Etapa.email => 'Enviar código',
     _Etapa.codigo => 'Validar código',
     _Etapa.novaSenha => 'Redefinir senha',
   };
-
   Widget _passos() {
     final i = _Etapa.values.indexOf(_etapa);
     const rotulos = ['E-mail', 'Código', 'Nova senha'];

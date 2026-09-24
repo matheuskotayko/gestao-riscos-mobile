@@ -6,9 +6,7 @@ import 'token_service.dart';
 
 class MonitoramentoService {
   MonitoramentoService(TokenService tokens) : _client = ApiClient(tokens);
-
   final ApiClient _client;
-
   Future<List<Monitoramento>> listarPorRisco(String riscoUuid) =>
       comApiError(() async {
         final todos = <Monitoramento>[];
@@ -28,7 +26,6 @@ class MonitoramentoService {
         }
         return todos;
       });
-
   Future<Monitoramento> criar(Map<String, dynamic> payload) =>
       comApiError(() async {
         final res = await _client.dio.post(
@@ -37,7 +34,6 @@ class MonitoramentoService {
         );
         return Monitoramento.fromJson(res.data as Map<String, dynamic>);
       });
-
   Future<Monitoramento> atualizar(int id, Map<String, dynamic> payload) =>
       comApiError(() async {
         final res = await _client.dio.patch(
@@ -46,7 +42,6 @@ class MonitoramentoService {
         );
         return Monitoramento.fromJson(res.data as Map<String, dynamic>);
       });
-
   Future<void> desativar(int id) => comApiError(() async {
     await _client.dio.delete('/api/riscos/monitoramentos/$id/');
   });

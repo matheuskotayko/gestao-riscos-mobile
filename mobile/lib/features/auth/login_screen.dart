@@ -10,7 +10,6 @@ import 'recuperar_senha_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
@@ -20,10 +19,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _siape = TextEditingController();
   final _senha = TextEditingController();
   final _auth = AuthService(TokenService());
-
   bool _carregando = false;
   bool _ocultarSenha = true;
-
   @override
   void dispose() {
     _siape.dispose();
@@ -46,7 +43,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Faixa de marca: azul UFSM fixo nos dois temas (momento de identidade).
     return Scaffold(
       backgroundColor: AppColors.ufsmAzul,
       body: Column(
@@ -73,10 +69,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Text(
                     'UFSM',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white70,
-                      letterSpacing: 2,
-                    ),
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(color: Colors.white70, letterSpacing: 2),
                   ),
                 ],
               ),
@@ -105,56 +99,60 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
-                    controller: _siape,
-                    keyboardType: TextInputType.number,
-                    textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(labelText: 'SIAPE'),
-                    validator: (v) => FormValidators.obrigatorio(v, 'SIAPE'),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _senha,
-                    obscureText: _ocultarSenha,
-                    textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) => _entrar(),
-                    decoration: InputDecoration(
-                      labelText: 'Senha',
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _ocultarSenha
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                        ),
-                        onPressed: () =>
-                            setState(() => _ocultarSenha = !_ocultarSenha),
+                        controller: _siape,
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.next,
+                        decoration: const InputDecoration(labelText: 'SIAPE'),
+                        validator: (v) =>
+                            FormValidators.obrigatorio(v, 'SIAPE'),
                       ),
-                    ),
-                    validator: (v) => FormValidators.obrigatorio(v, 'Senha'),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _carregando ? null : _entrar,
-                    child: _carregando
-                        ? SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Theme.of(context).colorScheme.onPrimary,
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _senha,
+                        obscureText: _ocultarSenha,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => _entrar(),
+                        decoration: InputDecoration(
+                          labelText: 'Senha',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _ocultarSenha
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
                             ),
-                          )
-                        : const Text('Entrar'),
-                  ),
-                  TextButton(
-                    onPressed: _carregando
-                        ? null
-                        : () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const RecuperarSenhaScreen(),
-                            ),
+                            onPressed: () =>
+                                setState(() => _ocultarSenha = !_ocultarSenha),
                           ),
-                    child: const Text('Esqueci minha senha'),
-                  ),
+                        ),
+                        validator: (v) =>
+                            FormValidators.obrigatorio(v, 'Senha'),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: _carregando ? null : _entrar,
+                        child: _carregando
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimary,
+                                ),
+                              )
+                            : const Text('Entrar'),
+                      ),
+                      TextButton(
+                        onPressed: _carregando
+                            ? null
+                            : () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const RecuperarSenhaScreen(),
+                                ),
+                              ),
+                        child: const Text('Esqueci minha senha'),
+                      ),
                     ],
                   ),
                 ),

@@ -10,10 +10,8 @@ import '../../widgets/guarda_form.dart';
 
 class PlanoAcaoFormScreen extends StatefulWidget {
   const PlanoAcaoFormScreen({super.key, required this.riscoUuid, this.acao});
-
   final String riscoUuid;
   final PlanoAcao? acao;
-
   @override
   State<PlanoAcaoFormScreen> createState() => _PlanoAcaoFormScreenState();
 }
@@ -22,11 +20,9 @@ class _PlanoAcaoFormScreenState extends State<PlanoAcaoFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final _repo = RiscoRepositorio(TokenService());
   static final _fmt = DateFormat('yyyy-MM-dd');
-
   bool get _edicao => widget.acao != null;
   bool _salvando = false;
   bool _sujo = false;
-
   String? _tipoResposta;
   String? _status;
   final _descricao = TextEditingController();
@@ -36,7 +32,6 @@ class _PlanoAcaoFormScreenState extends State<PlanoAcaoFormScreen> {
   DateTime? _inicio;
   DateTime? _fim;
   double _progresso = 0;
-
   @override
   void initState() {
     super.initState();
@@ -129,131 +124,131 @@ class _PlanoAcaoFormScreenState extends State<PlanoAcaoFormScreen> {
     return GuardaForm(
       sujo: _sujo && !_salvando,
       child: Scaffold(
-      appBar: AppBar(
-        title: Text(_edicao ? 'Editar plano de ação' : 'Novo plano de ação'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: 'Cancelar',
-          onPressed: () => Navigator.maybePop(context),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: FilledButton(
-            onPressed: _salvando ? null : _salvar,
-            child: _salvando
-                ? SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                  )
-                : Text(_edicao ? 'Salvar' : 'Criar'),
+        appBar: AppBar(
+          title: Text(_edicao ? 'Editar plano de ação' : 'Novo plano de ação'),
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: 'Cancelar',
+            onPressed: () => Navigator.maybePop(context),
           ),
         ),
-      ),
-      body: Form(
-        key: _formKey,
-        onChanged: () {
-          if (!_sujo) setState(() => _sujo = true);
-        },
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            DropdownButtonFormField<String>(
-              initialValue: _tipoResposta,
-              isExpanded: true,
-              decoration: const InputDecoration(
-                labelText: 'Tipo de resposta *',
-              ),
-              items: [
-                for (final t in PlanoAcao.tiposResposta)
-                  DropdownMenuItem(value: t, child: Text(t)),
-              ],
-              validator: (v) => v == null ? 'Selecione.' : null,
-              onChanged: (v) => setState(() => _tipoResposta = v),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: FilledButton(
+              onPressed: _salvando ? null : _salvar,
+              child: _salvando
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    )
+                  : Text(_edicao ? 'Salvar' : 'Criar'),
             ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _descricao,
-              minLines: 2,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Descrição da ação *',
-              ),
-              validator: (v) => FormValidators.obrigatorio(v, 'Descrição'),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _responsavel,
-              decoration: const InputDecoration(labelText: 'Responsável *'),
-              validator: (v) => FormValidators.obrigatorio(v, 'Responsável'),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _parceiros,
-              decoration: const InputDecoration(labelText: 'Parceiros'),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _campoData(
-                    'Início *',
-                    _inicio,
-                    () => _escolherData(inicio: true),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _campoData(
-                    'Fim *',
-                    _fim,
-                    () => _escolherData(inicio: false),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              initialValue: _status,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Status *'),
-              items: [
-                for (final s in PlanoAcao.statuses)
-                  DropdownMenuItem(value: s, child: Text(s)),
-              ],
-              validator: (v) => v == null ? 'Selecione.' : null,
-              onChanged: (v) => setState(() => _status = v),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Progresso: ${_progresso.round()}%',
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            Slider(
-              value: _progresso,
-              max: 100,
-              divisions: 20,
-              label: '${_progresso.round()}%',
-              onChanged: (v) => setState(() {
-                _progresso = v;
-                _sujo = true;
-              }),
-            ),
-            const SizedBox(height: 4),
-            TextFormField(
-              controller: _observacoes,
-              minLines: 2,
-              maxLines: 4,
-              decoration: const InputDecoration(labelText: 'Observações'),
-            ),
-          ],
+          ),
         ),
-      ),
+        body: Form(
+          key: _formKey,
+          onChanged: () {
+            if (!_sujo) setState(() => _sujo = true);
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              DropdownButtonFormField<String>(
+                initialValue: _tipoResposta,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Tipo de resposta *',
+                ),
+                items: [
+                  for (final t in PlanoAcao.tiposResposta)
+                    DropdownMenuItem(value: t, child: Text(t)),
+                ],
+                validator: (v) => v == null ? 'Selecione.' : null,
+                onChanged: (v) => setState(() => _tipoResposta = v),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _descricao,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  labelText: 'Descrição da ação *',
+                ),
+                validator: (v) => FormValidators.obrigatorio(v, 'Descrição'),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _responsavel,
+                decoration: const InputDecoration(labelText: 'Responsável *'),
+                validator: (v) => FormValidators.obrigatorio(v, 'Responsável'),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _parceiros,
+                decoration: const InputDecoration(labelText: 'Parceiros'),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _campoData(
+                      'Início *',
+                      _inicio,
+                      () => _escolherData(inicio: true),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _campoData(
+                      'Fim *',
+                      _fim,
+                      () => _escolherData(inicio: false),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: _status,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: 'Status *'),
+                items: [
+                  for (final s in PlanoAcao.statuses)
+                    DropdownMenuItem(value: s, child: Text(s)),
+                ],
+                validator: (v) => v == null ? 'Selecione.' : null,
+                onChanged: (v) => setState(() => _status = v),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Progresso: ${_progresso.round()}%',
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+              Slider(
+                value: _progresso,
+                max: 100,
+                divisions: 20,
+                label: '${_progresso.round()}%',
+                onChanged: (v) => setState(() {
+                  _progresso = v;
+                  _sujo = true;
+                }),
+              ),
+              const SizedBox(height: 4),
+              TextFormField(
+                controller: _observacoes,
+                minLines: 2,
+                maxLines: 4,
+                decoration: const InputDecoration(labelText: 'Observações'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

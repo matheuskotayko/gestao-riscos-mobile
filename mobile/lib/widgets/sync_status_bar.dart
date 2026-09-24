@@ -4,11 +4,8 @@ import '../core/app_colors.dart';
 import '../data/sync/conectividade.dart';
 import '../data/sync/motor_sync.dart';
 
-/// Faixa fina que mostra o estado da sincronização offline:
-/// offline, sincronizando, N alterações pendentes ou conflitos descartados.
 class SyncStatusBar extends StatefulWidget {
   const SyncStatusBar({super.key});
-
   @override
   State<SyncStatusBar> createState() => _SyncStatusBarState();
 }
@@ -17,7 +14,6 @@ class _SyncStatusBarState extends State<SyncStatusBar> {
   bool _online = Conectividade.instance.online;
   EstadoSync _estado = EstadoSync.ocioso;
   ResumoSync _resumo = const ResumoSync();
-
   @override
   void initState() {
     super.initState();
@@ -80,11 +76,7 @@ class _SyncStatusBarState extends State<SyncStatusBar> {
       );
     }
     if (_estado == EstadoSync.sincronizando) {
-      return (
-        icone: Icons.sync,
-        texto: 'Sincronizando...',
-        cor: cores.primary,
-      );
+      return (icone: Icons.sync, texto: 'Sincronizando...', cor: cores.primary);
     }
     if (_resumo.conflitos > 0) {
       return (

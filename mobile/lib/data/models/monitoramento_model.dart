@@ -11,25 +11,18 @@ class Monitoramento {
     this.ativo = true,
     this.atualizadoEm,
   });
-
   final int id;
   final String riscoUuid;
   final String resultados;
   final String acoesFuturas;
   final String analiseCritica;
   final String dataVerificacao;
-
-  /// URL da foto de evidência no servidor (leitura).
   final String? foto;
-
-  /// Caminho do arquivo local enquanto a foto ainda não sincronizou.
   final String? fotoLocalPath;
-
   final bool ativo;
   final String? atualizadoEm;
-
-  bool get temFoto => (foto != null && foto!.isNotEmpty) || fotoLocalPath != null;
-
+  bool get temFoto =>
+      (foto != null && foto!.isNotEmpty) || fotoLocalPath != null;
   factory Monitoramento.fromJson(Map<String, dynamic> j) => Monitoramento(
     id: (j['id'] as num).toInt(),
     riscoUuid: j['risco'] as String? ?? '',
@@ -42,8 +35,6 @@ class Monitoramento {
     ativo: j['ativo'] as bool? ?? true,
     atualizadoEm: j['atualizado_em'] as String?,
   );
-
-  /// Payload de texto. A foto sobe via multipart no [MotorSync], não aqui.
   Map<String, dynamic> toPayload() => {
     'risco': riscoUuid,
     'resultados': resultados,

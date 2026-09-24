@@ -19,7 +19,6 @@ void main() {
     expect(e.message, 'SIAPE ou senha inválidos.');
     expect(e.statusCode, 400);
   });
-
   test('extrai primeiro erro de campo do DRF', () {
     final e = ApiError.fromDio(
       _erro(400, {
@@ -31,17 +30,14 @@ void main() {
     expect(e.fields, isNotNull);
     expect(e.fields!.keys, containsAll(['senha', 'email']));
   });
-
   test('cai em mensagem por status quando o corpo não ajuda', () {
     final e = ApiError.fromDio(_erro(403, null));
     expect(e.message, 'Você não tem permissão para esta ação.');
   });
-
   group('mensagemDeErro', () {
     test('ApiError devolve a própria message', () {
       expect(mensagemDeErro(ApiError('x falhou')), 'x falhou');
     });
-
     test('DioException de conexão vira cópia amigável', () {
       final e = DioException(
         requestOptions: RequestOptions(path: '/x'),
@@ -49,7 +45,6 @@ void main() {
       );
       expect(mensagemDeErro(e), 'Não foi possível conectar ao servidor.');
     });
-
     test('DioException de timeout vira cópia amigável', () {
       final e = DioException(
         requestOptions: RequestOptions(path: '/x'),
@@ -57,14 +52,12 @@ void main() {
       );
       expect(mensagemDeErro(e), contains('Tempo de conexão'));
     });
-
     test('tira o prefixo "Exception: "', () {
       expect(
         mensagemDeErro(Exception('Risco não encontrado no cache.')),
         'Risco não encontrado no cache.',
       );
     });
-
     test('objeto qualquer cai no toString', () {
       expect(mensagemDeErro('erro solto'), 'erro solto');
     });

@@ -1,18 +1,12 @@
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
-/// Banco local (sqflite) usado como cache offline do domínio de riscos.
 class Banco {
   Banco._();
   static final Banco instance = Banco._();
-
-  /// Injetado pelos testes (sqflite_common_ffi, em memória).
   static Database? testDb;
-
   Database? _db;
-
   Future<Database> get db async => testDb ?? (_db ??= await _abrir());
-
   Future<Database> _abrir() async {
     final caminho = p.join(await getDatabasesPath(), 'gestao_risco.db');
     return openDatabase(
@@ -28,7 +22,6 @@ class Banco {
 
   static const _sqlCacheEstatico =
       'CREATE TABLE cache_estatico (chave TEXT PRIMARY KEY, json TEXT NOT NULL)';
-
   static Future<void> criarSchema(Database d) async {
     for (final tabela in ['riscos', 'acoes', 'monitoramentos']) {
       final chave = tabela == 'riscos' ? 'uuid TEXT' : 'id INTEGER';
@@ -57,7 +50,6 @@ class Banco {
     await d.execute(_sqlCacheEstatico);
   }
 
-  /// Apaga tudo — chamado no logout.
   Future<void> limpar() async {
     final d = await db;
     await d.delete('cache_riscos');
@@ -67,8 +59,6 @@ class Banco {
     await d.delete('cache_estatico');
   }
 
-  /// Guarda/lê listas estáticas (unidades, objetivos PDI, macroprocessos)
-  /// para os selects dos formulários funcionarem offline.
   Future<void> guardarEstatico(String chave, String json) async {
     final d = await db;
     await d.insert('cache_estatico', {

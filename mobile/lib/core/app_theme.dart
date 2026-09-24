@@ -5,9 +5,6 @@ import 'app_colors.dart';
 class AppTheme {
   static ThemeData get light => _build(_schemeLight, Brightness.light);
   static ThemeData get dark => _build(_schemeDark, Brightness.dark);
-
-  /// Deriva a paleta inteira (containers, tons, superfícies) do azul UFSM e
-  /// só sobrescreve os papéis que a identidade fixa.
   static final _schemeLight =
       ColorScheme.fromSeed(
         seedColor: AppColors.ufsmAzul,
@@ -27,7 +24,6 @@ class AppTheme {
         error: AppColors.error,
         onError: Colors.white,
       );
-
   static final _schemeDark =
       ColorScheme.fromSeed(
         seedColor: AppColors.ufsmAzul,
@@ -45,12 +41,10 @@ class AppTheme {
         outline: AppColors.darkOutline,
         surfaceContainerHighest: AppColors.darkContainerAlt,
       );
-
   static ThemeData _build(ColorScheme scheme, Brightness brightness) {
     final claro = brightness == Brightness.light;
     final appBarBg = claro ? AppColors.ufsmAzul : scheme.surfaceContainer;
     final appBarFg = claro ? Colors.white : scheme.onSurface;
-
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,

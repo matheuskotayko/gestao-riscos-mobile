@@ -4,12 +4,13 @@ import 'package:go_router/go_router.dart';
 import '../../core/role.dart';
 import '../../data/services/token_service.dart';
 
-// ordem fixa dos branches do StatefulShellRoute em app_router.dart — tem
-// que bater exatamente com a ordem declarada la, é como o navigationShell
-// sabe qual indice de branch corresponde a qual aba.
-const _ordemBranches = ['/riscos', '/dashboard', '/equipe', '/admin', '/perfil'];
-
-/// Abas visíveis para um papel. Pura — testável sem montar o widget.
+const _ordemBranches = [
+  '/riscos',
+  '/dashboard',
+  '/equipe',
+  '/admin',
+  '/perfil',
+];
 List<AbaShell> tabsPara(Role role) => [
   const AbaShell(
     '/riscos',
@@ -37,10 +38,8 @@ List<AbaShell> tabsPara(Role role) => [
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key, required this.navigationShell, this.tokens});
-
   final StatefulNavigationShell navigationShell;
   final TokenService? tokens;
-
   @override
   State<AppShell> createState() => _AppShellState();
 }
@@ -48,7 +47,6 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   late final TokenService _tokens = widget.tokens ?? TokenService();
   List<AbaShell> _tabs = tabsPara(Role.gestor);
-
   @override
   void initState() {
     super.initState();
@@ -61,7 +59,6 @@ class _AppShellState extends State<AppShell> {
     setState(() => _tabs = tabsPara(role));
   }
 
-  // posicao (dentro das abas visiveis) que corresponde ao branch ativo
   int _indexAtual() {
     final path = _ordemBranches[widget.navigationShell.currentIndex];
     final i = _tabs.indexWhere((t) => t.path == path);
@@ -92,7 +89,6 @@ class _AppShellState extends State<AppShell> {
 
 class AbaShell {
   const AbaShell(this.path, this.icon, this.activeIcon, this.label);
-
   final String path;
   final IconData icon;
   final IconData activeIcon;

@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../core/api_error.dart';
 
-/// Estados de tela compartilhados (vazio / erro / carregando). Uma única
-/// aparência para os três em todas as listas.
-
 class EstadoVazio extends StatelessWidget {
   const EstadoVazio({
     super.key,
@@ -13,17 +10,14 @@ class EstadoVazio extends StatelessWidget {
     this.detalhe,
     this.acao,
   });
-
   final IconData icone;
   final String titulo;
   final String? detalhe;
   final Widget? acao;
-
   @override
   Widget build(BuildContext context) {
     final cores = Theme.of(context).colorScheme;
     return ListView(
-      // ListView (não Center) para manter o pull-to-refresh funcionando.
       padding: const EdgeInsets.symmetric(horizontal: 32),
       children: [
         const SizedBox(height: 96),
@@ -42,10 +36,7 @@ class EstadoVazio extends StatelessWidget {
             style: TextStyle(color: cores.onSurfaceVariant),
           ),
         ],
-        if (acao != null) ...[
-          const SizedBox(height: 20),
-          Center(child: acao),
-        ],
+        if (acao != null) ...[const SizedBox(height: 20), Center(child: acao)],
       ],
     );
   }
@@ -53,10 +44,8 @@ class EstadoVazio extends StatelessWidget {
 
 class EstadoErro extends StatelessWidget {
   const EstadoErro({super.key, required this.erro, this.onTentar});
-
   final Object erro;
   final VoidCallback? onTentar;
-
   @override
   Widget build(BuildContext context) {
     return EstadoVazio(
@@ -74,13 +63,10 @@ class EstadoErro extends StatelessWidget {
   }
 }
 
-/// Placeholder de lista enquanto carrega — retângulos no lugar dos cards.
 class SkeletonLista extends StatelessWidget {
   const SkeletonLista({super.key, this.itens = 6, this.altura = 96});
-
   final int itens;
   final double altura;
-
   @override
   Widget build(BuildContext context) {
     final cor = Theme.of(context).colorScheme.surfaceContainerHighest;

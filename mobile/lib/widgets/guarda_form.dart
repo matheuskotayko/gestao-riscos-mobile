@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Envolve um form: se [sujo], o back do Android / seta da AppBar pedem
-/// confirmação antes de descartar as alterações.
 class GuardaForm extends StatelessWidget {
   const GuardaForm({super.key, required this.sujo, required this.child});
-
   final bool sujo;
   final Widget child;
-
   @override
   Widget build(BuildContext context) {
     return PopScope(

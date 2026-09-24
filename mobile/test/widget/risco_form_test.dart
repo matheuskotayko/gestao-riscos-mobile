@@ -5,91 +5,104 @@ import 'package:gestao_risco_mobile/features/riscos/risco_form_screen.dart';
 import '../support/fakes.dart';
 
 Widget _tela(RiscoFormScreen s) => MaterialApp(home: s);
-
 void main() {
   setUp(() => prepararAmbienteDeTeste(online: false, telaAlta: true));
-
   testWidgets('form novo carrega e mostra os campos', (tester) async {
-    await tester.pumpWidget(_tela(RiscoFormScreen(
-      repo: FakeRiscoRepositorio(),
-      pdi: FakePdiService(),
-      unidades: FakeUnidadeService(unidades: [unidade(id: 1)]),
-      tokens: tokensComUsuario(setores: [1]),
-    )));
+    await tester.pumpWidget(
+      _tela(
+        RiscoFormScreen(
+          repo: FakeRiscoRepositorio(),
+          pdi: FakePdiService(),
+          unidades: FakeUnidadeService(unidades: [unidade(id: 1)]),
+          tokens: tokensComUsuario(setores: [1]),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
-
     expect(find.text('Novo risco'), findsOneWidget);
     expect(find.text('Unidade *'), findsOneWidget);
     expect(find.text('Criar risco'), findsOneWidget);
   });
-
-  testWidgets('editar risco com residual > inerente mostra o aviso', (tester) async {
-    final r = risco(prob: 2, impacto: 2, probRes: 5, impRes: 5); // 4 vs 25
-    await tester.pumpWidget(_tela(RiscoFormScreen(
-      risco: r,
-      repo: FakeRiscoRepositorio(),
-      pdi: FakePdiService(),
-      unidades: FakeUnidadeService(unidades: [unidade(id: 1)]),
-      tokens: tokensComUsuario(setores: [1]),
-    )));
+  testWidgets('editar risco com residual > inerente mostra o aviso', (
+    tester,
+  ) async {
+    final r = risco(prob: 2, impacto: 2, probRes: 5, impRes: 5);
+    await tester.pumpWidget(
+      _tela(
+        RiscoFormScreen(
+          risco: r,
+          repo: FakeRiscoRepositorio(),
+          pdi: FakePdiService(),
+          unidades: FakeUnidadeService(unidades: [unidade(id: 1)]),
+          tokens: tokensComUsuario(setores: [1]),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
-
     expect(
       find.textContaining('risco residual está maior que o inerente'),
       findsOneWidget,
     );
   });
-
   testWidgets('sem residual > inerente, sem aviso', (tester) async {
     final r = risco(prob: 5, impacto: 5, probRes: 1, impRes: 1);
-    await tester.pumpWidget(_tela(RiscoFormScreen(
-      risco: r,
-      repo: FakeRiscoRepositorio(),
-      pdi: FakePdiService(),
-      unidades: FakeUnidadeService(unidades: [unidade(id: 1)]),
-      tokens: tokensComUsuario(setores: [1]),
-    )));
+    await tester.pumpWidget(
+      _tela(
+        RiscoFormScreen(
+          risco: r,
+          repo: FakeRiscoRepositorio(),
+          pdi: FakePdiService(),
+          unidades: FakeUnidadeService(unidades: [unidade(id: 1)]),
+          tokens: tokensComUsuario(setores: [1]),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
-
     expect(
       find.textContaining('risco residual está maior que o inerente'),
       findsNothing,
     );
   });
-
-  testWidgets('"Usar localização atual" mostra as coordenadas capturadas',
-      (tester) async {
-    await tester.pumpWidget(_tela(RiscoFormScreen(
-      repo: FakeRiscoRepositorio(),
-      pdi: FakePdiService(),
-      unidades: FakeUnidadeService(unidades: [unidade(id: 1)]),
-      tokens: tokensComUsuario(setores: [1]),
-      capturarLocal: () async => (latitude: -29.71349, longitude: -53.71614),
-    )));
+  testWidgets('"Usar localização atual" mostra as coordenadas capturadas', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _tela(
+        RiscoFormScreen(
+          repo: FakeRiscoRepositorio(),
+          pdi: FakePdiService(),
+          unidades: FakeUnidadeService(unidades: [unidade(id: 1)]),
+          tokens: tokensComUsuario(setores: [1]),
+          capturarLocal: () async =>
+              (latitude: -29.71349, longitude: -53.71614),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
-
     await tester.tap(find.text('Usar localização atual'));
     await tester.pumpAndSettle();
-
     expect(find.textContaining('-29.71349, -53.71614'), findsOneWidget);
     expect(find.text('Remover'), findsOneWidget);
   });
-
-  testWidgets('mostra o endereço resolvido junto das coordenadas',
-      (tester) async {
-    await tester.pumpWidget(_tela(RiscoFormScreen(
-      repo: FakeRiscoRepositorio(),
-      pdi: FakePdiService(),
-      unidades: FakeUnidadeService(unidades: [unidade(id: 1)]),
-      tokens: tokensComUsuario(setores: [1]),
-      capturarLocal: () async => (latitude: -29.71349, longitude: -53.71614),
-      resolverEndereco: (_, _) async => 'Av. Roraima, 1000 — Camobi',
-    )));
+  testWidgets('mostra o endereço resolvido junto das coordenadas', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _tela(
+        RiscoFormScreen(
+          repo: FakeRiscoRepositorio(),
+          pdi: FakePdiService(),
+          unidades: FakeUnidadeService(unidades: [unidade(id: 1)]),
+          tokens: tokensComUsuario(setores: [1]),
+          capturarLocal: () async =>
+              (latitude: -29.71349, longitude: -53.71614),
+          resolverEndereco: (_, _) async => 'Av. Roraima, 1000 — Camobi',
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
-
     await tester.tap(find.text('Usar localização atual'));
     await tester.pumpAndSettle();
-
     expect(find.text('Av. Roraima, 1000 — Camobi'), findsOneWidget);
     expect(find.textContaining('-29.71349, -53.71614'), findsOneWidget);
   });

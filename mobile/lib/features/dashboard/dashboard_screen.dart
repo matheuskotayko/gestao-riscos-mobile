@@ -16,11 +16,9 @@ import '../riscos/risco_detalhe_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key, this.service, this.unidades, this.tokens});
-
   final DashboardService? service;
   final UnidadeService? unidades;
   final TokenService? tokens;
-
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
@@ -31,14 +29,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       widget.service ?? DashboardService(_tokens);
   late final UnidadeService _unidadeService =
       widget.unidades ?? UnidadeService(_tokens);
-
   List<UnidadeModel> _unidades = [];
   FiltroDashboard _filtro = const FiltroDashboard();
-
   Dashboard? _dados;
   bool _carregando = true;
   Object? _erro;
-
   @override
   void initState() {
     super.initState();
@@ -54,9 +49,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       final u = await _unidadeService.listar();
       if (mounted) setState(() => _unidades = u);
-    } catch (_) {
-      // filtro por unidade indisponível
-    }
+    } catch (_) {}
   }
 
   Future<void> _carregar() async {
@@ -191,7 +184,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     padding: const EdgeInsets.only(bottom: 8, top: 4),
     child: Text(titulo, style: Theme.of(context).textTheme.titleMedium),
   );
-
   Widget _kpis(Dashboard d) {
     final primaria = Theme.of(context).colorScheme.primary;
     final itens = [
@@ -242,7 +234,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 class _PorNivel extends StatelessWidget {
   const _PorNivel({required this.nivel});
   final RiscosPorNivel nivel;
-
   @override
   Widget build(BuildContext context) {
     final segs = [
@@ -302,12 +293,9 @@ class _PorNivel extends StatelessWidget {
   }
 }
 
-/// Lista horizontal — uma linha por categoria: rótulo, barra proporcional e
-/// contagem. Escala pra qualquer número de categorias e é lida pelo TalkBack.
 class _CategoriaChart extends StatelessWidget {
   const _CategoriaChart({required this.dados});
   final List<CategoriaContagem> dados;
-
   @override
   Widget build(BuildContext context) {
     if (dados.every((d) => d.quantidade == 0)) {
@@ -376,7 +364,6 @@ class _CategoriaChart extends StatelessWidget {
 class _RankingUnidades extends StatelessWidget {
   const _RankingUnidades({required this.itens});
   final List<UnidadeExposicao> itens;
-
   @override
   Widget build(BuildContext context) {
     if (itens.isEmpty) {
@@ -428,7 +415,6 @@ class _PrioritarioCard extends StatelessWidget {
   const _PrioritarioCard({required this.prioritario, required this.onTap});
   final RiscoPrioritario prioritario;
   final VoidCallback onTap;
-
   @override
   Widget build(BuildContext context) {
     final r = prioritario.risco;
@@ -476,14 +462,12 @@ class _FiltroSheet extends StatefulWidget {
   const _FiltroSheet({required this.filtro, required this.unidades});
   final FiltroDashboard filtro;
   final List<UnidadeModel> unidades;
-
   @override
   State<_FiltroSheet> createState() => _FiltroSheetState();
 }
 
 class _FiltroSheetState extends State<_FiltroSheet> {
   late FiltroDashboard _f = widget.filtro;
-
   UnidadeModel? _unidade() {
     for (final u in widget.unidades) {
       if (u.id == _f.setorId) return u;

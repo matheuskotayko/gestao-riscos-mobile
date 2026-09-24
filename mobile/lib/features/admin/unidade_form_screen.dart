@@ -8,9 +8,7 @@ import '../../data/services/unidade_service.dart';
 
 class UnidadeFormScreen extends StatefulWidget {
   const UnidadeFormScreen({super.key, this.unidade});
-
   final UnidadeModel? unidade;
-
   @override
   State<UnidadeFormScreen> createState() => _UnidadeFormScreenState();
 }
@@ -18,10 +16,8 @@ class UnidadeFormScreen extends StatefulWidget {
 class _UnidadeFormScreenState extends State<UnidadeFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final _service = UnidadeService(TokenService());
-
   bool get _edicao => widget.unidade != null;
   bool _salvando = false;
-
   late final _nome = TextEditingController(text: widget.unidade?.nome ?? '');
   late final _sigla = TextEditingController(text: widget.unidade?.sigla ?? '');
   late final _siglaCentro = TextEditingController(
@@ -33,7 +29,6 @@ class _UnidadeFormScreenState extends State<UnidadeFormScreen> {
   late final _tipo = TextEditingController(
     text: widget.unidade?.tipoUnidade ?? '',
   );
-
   @override
   void dispose() {
     _nome.dispose();

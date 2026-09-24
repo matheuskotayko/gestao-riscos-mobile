@@ -12,21 +12,19 @@ import 'editar_perfil_screen.dart';
 
 class PerfilScreen extends StatefulWidget {
   const PerfilScreen({super.key, this.service, this.auth, this.tokens});
-
   final UsuarioService? service;
   final AuthService? auth;
   final TokenService? tokens;
-
   @override
   State<PerfilScreen> createState() => _PerfilScreenState();
 }
 
 class _PerfilScreenState extends State<PerfilScreen> {
   late final TokenService _tokens = widget.tokens ?? TokenService();
-  late final UsuarioService _service = widget.service ?? UsuarioService(_tokens);
+  late final UsuarioService _service =
+      widget.service ?? UsuarioService(_tokens);
   late final AuthService _auth = widget.auth ?? AuthService(_tokens);
   late Future<UsuarioModel> _future;
-
   @override
   void initState() {
     super.initState();
@@ -133,7 +131,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
 
 class _SeletorTema extends StatelessWidget {
   const _SeletorTema();
-
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(

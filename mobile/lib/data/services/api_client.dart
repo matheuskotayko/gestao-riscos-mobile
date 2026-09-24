@@ -3,9 +3,6 @@ import 'package:dio/dio.dart';
 import '../../core/env.dart';
 import 'token_service.dart';
 
-/// dio configurado com a base da api e o jwt (token de acesso, vida longa,
-/// sem refresh) no header. quando da 401 a sessao e limpa; a proxima
-/// navegacao cai no redirect do go_router e manda pro login.
 class ApiClient {
   ApiClient(this._tokenService) {
     _dio = Dio(
@@ -16,7 +13,6 @@ class ApiClient {
         contentType: Headers.jsonContentType,
       ),
     );
-
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -35,9 +31,7 @@ class ApiClient {
       ),
     );
   }
-
   late final Dio _dio;
   final TokenService _tokenService;
-
   Dio get dio => _dio;
 }

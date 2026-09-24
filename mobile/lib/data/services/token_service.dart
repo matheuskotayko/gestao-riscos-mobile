@@ -6,16 +6,11 @@ import '../../core/credencial_offline.dart';
 import '../models/auth_model.dart';
 import '../models/usuario_model.dart';
 
-/// sessao persistida. o backend manda um jwt de acesso com vida longa: na
-/// pratica o token nunca expira e nao tem refresh — so guarda ele e manda
-/// no header de toda requisicao.
 class TokenService {
   static const _storage = FlutterSecureStorage();
-
   static const _keyToken = 'token';
   static const _keyUsuario = 'usuario';
   static const _keyCredencial = 'credencial_offline';
-
   Future<void> saveSession(LoginResponse res) async {
     await Future.wait([
       _storage.write(key: _keyToken, value: res.token),
@@ -30,8 +25,6 @@ class TokenService {
     key: _keyUsuario,
     value: jsonEncode(usuario.toStorageJson()),
   );
-
-  /// guarda o hash da senha pra revalidar o login quando a api nao responder.
   Future<void> salvarCredencialOffline(
     String siape,
     String senha,
@@ -47,17 +40,13 @@ class TokenService {
       ).toJson(),
     ),
   );
-
   Future<CredencialOffline?> credencialOffline() async {
     final raw = await _lerSeguro(_keyCredencial);
     if (raw == null || raw.isEmpty) return null;
-    return CredencialOffline.fromJson(
-      jsonDecode(raw) as Map<String, dynamic>,
-    );
+    return CredencialOffline.fromJson(jsonDecode(raw) as Map<String, dynamic>);
   }
 
   Future<String?> getToken() => _lerSeguro(_keyToken);
-
   Future<bool> hasToken() async {
     final t = await _lerSeguro(_keyToken);
     return t != null && t.isNotEmpty;
@@ -69,10 +58,6 @@ class TokenService {
     return UsuarioModel.fromJson(jsonDecode(raw) as Map<String, dynamic>);
   }
 
-  /// le do secure storage tolerando dado cifrado ilegivel (tipo quando a
-  /// chave do android keystore fica dessincronizada depois de reinstalar
-  /// o app). sem isso, uma falha de decriptacao no redirect do go_router
-  /// trava a tela preta pra sempre em vez de so cair no login.
   Future<String?> _lerSeguro(String chave) async {
     try {
       return await _storage.read(key: chave);
@@ -82,8 +67,6 @@ class TokenService {
     }
   }
 
-  /// encerra a sessao mas preserva a credencial offline: sem ela, sair da
-  /// conta longe do servidor deixaria o app inacessivel.
   Future<void> clear() async {
     await _storage.delete(key: _keyToken);
     await _storage.delete(key: _keyUsuario);
@@ -91,8 +74,6 @@ class TokenService {
 }
 
 extension _UsuarioStorage on UsuarioModel {
-  /// guarda so o necessario pra reconstruir o UsuarioModel depois (mesmas
-  /// chaves do json da api, pra reaproveitar o UsuarioModel.fromJson).
   Map<String, dynamic> toStorageJson() => {
     'uuid': uuid,
     'id': id,

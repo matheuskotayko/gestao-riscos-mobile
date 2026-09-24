@@ -1,8 +1,3 @@
-/// Paginação do DRF.
-///
-/// `PageNumberPagination` padrão devolve `{count, next, previous, results}`.
-/// As listas administrativas customizadas (`/gestores/`, `/setores/admin/`)
-/// devolvem `{count, page, total_pages, results}` — use [PageResponse.fromDrfAdmin].
 class PageResponse<T> {
   const PageResponse({
     required this.results,
@@ -12,16 +7,13 @@ class PageResponse<T> {
     this.page = 1,
     this.totalPages = 1,
   });
-
   final List<T> results;
   final int count;
   final String? next;
   final String? previous;
   final int page;
   final int totalPages;
-
   bool get hasNext => next != null || page < totalPages;
-
   static List<T> _parseResults<T>(
     dynamic raw,
     T Function(Map<String, dynamic>) fromJson,
@@ -43,7 +35,6 @@ class PageResponse<T> {
       previous: json['previous'] as String?,
     );
   }
-
   factory PageResponse.fromDrfAdmin(
     Map<String, dynamic> json,
     T Function(Map<String, dynamic>) fromJson,

@@ -12,9 +12,7 @@ import '../../widgets/guarda_form.dart';
 
 class GestorFormScreen extends StatefulWidget {
   const GestorFormScreen({super.key, this.gestor});
-
   final UsuarioModel? gestor;
-
   @override
   State<GestorFormScreen> createState() => _GestorFormScreenState();
 }
@@ -23,12 +21,10 @@ class _GestorFormScreenState extends State<GestorFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _tokens = TokenService();
   late final _service = UsuarioService(_tokens);
-
   bool get _edicao => widget.gestor != null;
   bool _carregando = true;
   bool _salvando = false;
   bool _sujo = false;
-
   List<UnidadeModel> _unidades = [];
   final _siape = TextEditingController();
   final _nome = TextEditingController();
@@ -36,7 +32,6 @@ class _GestorFormScreenState extends State<GestorFormScreen> {
   final _senha = TextEditingController();
   String _cargo = 'gestor';
   final List<int> _setoresIds = [];
-
   @override
   void initState() {
     super.initState();
@@ -123,122 +118,125 @@ class _GestorFormScreenState extends State<GestorFormScreen> {
     return GuardaForm(
       sujo: _sujo && !_salvando,
       child: Scaffold(
-      appBar: AppBar(
-        title: Text(_edicao ? 'Editar gestor' : 'Novo gestor'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: 'Cancelar',
-          onPressed: () => Navigator.maybePop(context),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: FilledButton(
-            onPressed: _salvando ? null : _salvar,
-            child: _salvando
-                ? SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                  )
-                : Text(_edicao ? 'Salvar' : 'Criar'),
+        appBar: AppBar(
+          title: Text(_edicao ? 'Editar gestor' : 'Novo gestor'),
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: 'Cancelar',
+            onPressed: () => Navigator.maybePop(context),
           ),
         ),
-      ),
-      body: _carregando
-          ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              onChanged: () {
-                if (!_sujo) setState(() => _sujo = true);
-              },
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  TextFormField(
-                    controller: _siape,
-                    enabled: !_edicao,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'SIAPE *'),
-                    validator: (v) => FormValidators.obrigatorio(v, 'SIAPE'),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _nome,
-                    decoration: const InputDecoration(labelText: 'Nome *'),
-                    validator: (v) => FormValidators.obrigatorio(v, 'Nome'),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'E-mail *'),
-                    validator: (v) =>
-                        FormValidators.obrigatorio(v, 'E-mail') ??
-                        FormValidators.email(v),
-                  ),
-                  if (!_edicao) ...[
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: FilledButton(
+              onPressed: _salvando ? null : _salvar,
+              child: _salvando
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    )
+                  : Text(_edicao ? 'Salvar' : 'Criar'),
+            ),
+          ),
+        ),
+        body: _carregando
+            ? const Center(child: CircularProgressIndicator())
+            : Form(
+                key: _formKey,
+                onChanged: () {
+                  if (!_sujo) setState(() => _sujo = true);
+                },
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    TextFormField(
+                      controller: _siape,
+                      enabled: !_edicao,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'SIAPE *'),
+                      validator: (v) => FormValidators.obrigatorio(v, 'SIAPE'),
+                    ),
                     const SizedBox(height: 12),
                     TextFormField(
-                      controller: _senha,
-                      obscureText: true,
-                      decoration: const InputDecoration(labelText: 'Senha *'),
-                      validator: FormValidators.senha,
+                      controller: _nome,
+                      decoration: const InputDecoration(labelText: 'Nome *'),
+                      validator: (v) => FormValidators.obrigatorio(v, 'Nome'),
                     ),
-                  ],
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    initialValue: _cargo,
-                    decoration: const InputDecoration(labelText: 'Cargo'),
-                    items: const [
-                      DropdownMenuItem(value: 'gestor', child: Text('Gestor')),
-                      DropdownMenuItem(
-                        value: 'gestor_adm',
-                        child: Text('Gestor Administrador'),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _email,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(labelText: 'E-mail *'),
+                      validator: (v) =>
+                          FormValidators.obrigatorio(v, 'E-mail') ??
+                          FormValidators.email(v),
+                    ),
+                    if (!_edicao) ...[
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _senha,
+                        obscureText: true,
+                        decoration: const InputDecoration(labelText: 'Senha *'),
+                        validator: FormValidators.senha,
                       ),
                     ],
-                    onChanged: (v) => setState(() => _cargo = v ?? 'gestor'),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Unidades vinculadas',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  for (final id in _setoresIds)
-                    Chip(
-                      label: Text(_rotuloUnidade(id)),
-                      onDeleted: () => setState(() {
-                        _setoresIds.remove(id);
-                        _sujo = true;
-                      }),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      initialValue: _cargo,
+                      decoration: const InputDecoration(labelText: 'Cargo'),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'gestor',
+                          child: Text('Gestor'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'gestor_adm',
+                          child: Text('Gestor Administrador'),
+                        ),
+                      ],
+                      onChanged: (v) => setState(() => _cargo = v ?? 'gestor'),
                     ),
-                  const SizedBox(height: 8),
-                  BuscaSelecao<UnidadeModel>(
-                    label: 'Adicionar unidade',
-                    rotuloVazio: 'Selecionar',
-                    permiteVazio: false,
-                    itens: _unidades
-                        .where((u) => !_setoresIds.contains(u.id))
-                        .toList(),
-                    rotulo: (u) => u.rotulo,
-                    selecionado: null,
-                    onChanged: (u) {
-                      if (u != null) {
-                        setState(() {
-                          _setoresIds.add(u.id);
+                    const SizedBox(height: 20),
+                    Text(
+                      'Unidades vinculadas',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    for (final id in _setoresIds)
+                      Chip(
+                        label: Text(_rotuloUnidade(id)),
+                        onDeleted: () => setState(() {
+                          _setoresIds.remove(id);
                           _sujo = true;
-                        });
-                      }
-                    },
-                  ),
-                ],
+                        }),
+                      ),
+                    const SizedBox(height: 8),
+                    BuscaSelecao<UnidadeModel>(
+                      label: 'Adicionar unidade',
+                      rotuloVazio: 'Selecionar',
+                      permiteVazio: false,
+                      itens: _unidades
+                          .where((u) => !_setoresIds.contains(u.id))
+                          .toList(),
+                      rotulo: (u) => u.rotulo,
+                      selecionado: null,
+                      onChanged: (u) {
+                        if (u != null) {
+                          setState(() {
+                            _setoresIds.add(u.id);
+                            _sujo = true;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
       ),
     );
   }

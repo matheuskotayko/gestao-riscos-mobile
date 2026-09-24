@@ -13,10 +13,8 @@ import '../../widgets/sync_status_bar.dart';
 
 class EquipeScreen extends StatefulWidget {
   const EquipeScreen({super.key, this.service, this.tokens});
-
   final EquipeService? service;
   final TokenService? tokens;
-
   @override
   State<EquipeScreen> createState() => _EquipeScreenState();
 }
@@ -24,16 +22,13 @@ class EquipeScreen extends StatefulWidget {
 class _EquipeScreenState extends State<EquipeScreen> {
   late final TokenService _tokens = widget.tokens ?? TokenService();
   late final EquipeService _service = widget.service ?? EquipeService(_tokens);
-
   List<UnidadeModel> _setores = [];
   UnidadeModel? _setor;
   List<UsuarioModel> _membros = [];
   bool _carregando = true;
   Object? _erro;
-
   bool _online = Conectividade.instance.online;
   StreamSubscription<bool>? _conSub;
-
   @override
   void initState() {
     super.initState();
@@ -98,12 +93,6 @@ class _EquipeScreenState extends State<EquipeScreen> {
     }
   }
 
-  // fecha o dialogo largando o foco do textfield antes do pop. sem isso,
-  // se o teclado estiver aberto na hora de fechar, o flutter tenta
-  // derrubar o elemento do textfield enquanto ele ainda ta "dependente"
-  // de um inheritedwidget (foco/teclado) — da um assert interno
-  // (_dependents.isEmpty) e a tela quebra. o unfocus + 1 frame de folga
-  // garante que essa dependencia ja foi limpa antes do dialogo sumir.
   Future<void> _fecharDialogo(BuildContext dialogContext, String? valor) async {
     FocusScope.of(dialogContext).unfocus();
     await Future.delayed(const Duration(milliseconds: 50));
@@ -115,10 +104,6 @@ class _EquipeScreenState extends State<EquipeScreen> {
     try {
       return await showDialog<String>(
         context: context,
-        // builder usa o proprio context do dialogo (nao o da tela de fora)
-        // pra dar Navigator.pop — igual o confirmar() la no app_feedback.dart
-        // faz. usar o context de fora aqui era o bug real por tras da tela
-        // preta ao fechar esse dialogo (contexto errado pra fechar o pop).
         builder: (dialogContext) => AlertDialog(
           title: const Text('Adicionar membro'),
           content: TextField(
@@ -144,11 +129,6 @@ class _EquipeScreenState extends State<EquipeScreen> {
         ),
       );
     } finally {
-      // nao da dispose na hora — o pop resolve o future antes da animacao
-      // de saida do dialog terminar, e ela ainda reconstroi o textfield
-      // com esse controller. dar dispose synchronous aqui derruba ele no
-      // meio da transicao e estoura o _dependents.isEmpty. espera a
-      // transicao (~200ms, mesma familia do delay do unfocus) acabar antes.
       Future.delayed(const Duration(milliseconds: 300), ctrl.dispose);
     }
   }
@@ -187,7 +167,10 @@ class _EquipeScreenState extends State<EquipeScreen> {
               label: const Text('Adicionar'),
             ),
       body: Column(
-        children: [const SyncStatusBar(), Expanded(child: _corpo())],
+        children: [
+          const SyncStatusBar(),
+          Expanded(child: _corpo()),
+        ],
       ),
     );
   }

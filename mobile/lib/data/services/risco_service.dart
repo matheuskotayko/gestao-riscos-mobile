@@ -28,7 +28,6 @@ class FiltroRisco {
     this.ordenacao = OrdenacaoRisco.recentes,
     this.incluirInativos = false,
   });
-
   final String? busca;
   final int? setorId;
   final String? categoria;
@@ -36,7 +35,6 @@ class FiltroRisco {
   final String? dataFim;
   final OrdenacaoRisco ordenacao;
   final bool incluirInativos;
-
   FiltroRisco copyWith({
     String? busca,
     int? setorId,
@@ -66,7 +64,6 @@ class FiltroRisco {
       categoria != null ||
       dataInicio != null ||
       dataFim != null;
-
   Map<String, dynamic> toQuery(int page) {
     final q = <String, dynamic>{'page': page, 'ordenacao': ordenacao.param};
     if (busca != null && busca!.isNotEmpty) q['search'] = busca;
@@ -78,7 +75,6 @@ class FiltroRisco {
     return q;
   }
 
-  /// Aplica busca/filtros/ordenação sobre a lista do cache local (modo offline).
   List<Risco> aplicar(List<Risco> riscos) {
     final termo = busca?.trim().toLowerCase() ?? '';
     var out = riscos.where((r) {
@@ -107,7 +103,6 @@ class FiltroRisco {
       }
       return true;
     }).toList();
-
     int cmp(Risco a, Risco b) => switch (ordenacao) {
       OrdenacaoRisco.recentes => (b.atualizadoEm ?? '').compareTo(
         a.atualizadoEm ?? '',
@@ -131,9 +126,7 @@ class FiltroRisco {
 
 class RiscoService {
   RiscoService(TokenService tokens) : _client = ApiClient(tokens);
-
   final ApiClient _client;
-
   Future<PageResponse<Risco>> listar({
     int page = 1,
     FiltroRisco filtro = const FiltroRisco(),
@@ -147,17 +140,14 @@ class RiscoService {
       Risco.fromJson,
     );
   });
-
   Future<Risco> obter(String uuid) => comApiError(() async {
     final res = await _client.dio.get('/api/riscos/planos/$uuid/');
     return Risco.fromJson(res.data as Map<String, dynamic>);
   });
-
   Future<Risco> criar(Map<String, dynamic> payload) => comApiError(() async {
     final res = await _client.dio.post('/api/riscos/planos/', data: payload);
     return Risco.fromJson(res.data as Map<String, dynamic>);
   });
-
   Future<Risco> atualizar(String uuid, Map<String, dynamic> payload) =>
       comApiError(() async {
         final res = await _client.dio.patch(
@@ -166,16 +156,13 @@ class RiscoService {
         );
         return Risco.fromJson(res.data as Map<String, dynamic>);
       });
-
   Future<void> desativar(String uuid) => comApiError(() async {
     await _client.dio.delete('/api/riscos/planos/$uuid/');
   });
-
   Future<Risco> duplicar(String uuid) => comApiError(() async {
     final res = await _client.dio.post('/api/riscos/planos/$uuid/duplicar/');
     return Risco.fromJson(res.data as Map<String, dynamic>);
   });
-
   Future<List<HistoricoEntrada>> historico(String uuid) => comApiError(
     () async {
       final res = await _client.dio.get('/api/riscos/planos/$uuid/historico/');

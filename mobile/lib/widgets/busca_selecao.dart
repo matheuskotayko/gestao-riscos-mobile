@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Campo de seleção única com busca — para listas grandes (ex.: 1300+ unidades)
-/// onde um Dropdown seria inutilizável.
 class BuscaSelecao<T> extends StatelessWidget {
   const BuscaSelecao({
     super.key,
@@ -13,7 +11,6 @@ class BuscaSelecao<T> extends StatelessWidget {
     this.rotuloVazio = 'Todos',
     this.permiteVazio = true,
   });
-
   final String label;
   final List<T> itens;
   final String Function(T) rotulo;
@@ -21,7 +18,6 @@ class BuscaSelecao<T> extends StatelessWidget {
   final ValueChanged<T?> onChanged;
   final String rotuloVazio;
   final bool permiteVazio;
-
   Future<void> _abrir(BuildContext context) async {
     final r = await showModalBottomSheet<_Resultado<T>>(
       context: context,
@@ -66,20 +62,17 @@ class _SheetBusca<T> extends StatefulWidget {
     required this.rotuloVazio,
     required this.permiteVazio,
   });
-
   final String titulo;
   final List<T> itens;
   final String Function(T) rotulo;
   final String rotuloVazio;
   final bool permiteVazio;
-
   @override
   State<_SheetBusca<T>> createState() => _SheetBuscaState<T>();
 }
 
 class _SheetBuscaState<T> extends State<_SheetBusca<T>> {
   String _busca = '';
-
   @override
   Widget build(BuildContext context) {
     final termo = _busca.trim().toLowerCase();
@@ -90,7 +83,8 @@ class _SheetBuscaState<T> extends State<_SheetBusca<T>> {
               .toList();
     return Padding(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom +
+        bottom:
+            MediaQuery.of(context).viewInsets.bottom +
             MediaQuery.of(context).padding.bottom,
       ),
       child: SizedBox(

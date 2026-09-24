@@ -62,7 +62,6 @@ void main() {
         },
       ],
     });
-
     expect(d.totalPlanos, 9);
     expect(d.riscosPorNivel.total, 9);
     expect(d.coberturaMonitoramento, 22.2);
@@ -71,7 +70,6 @@ void main() {
     expect(d.riscosPrioritarios.single.responsavel, 'Fulano');
     expect(d.riscosPrioritarios.single.risco.uuid, 'abc');
   });
-
   test('FiltroDashboard.toQuery só inclui o que está setado', () {
     expect(const FiltroDashboard().toQuery(), isEmpty);
     final q = const FiltroDashboard(setorId: 5, busca: 'x').toQuery();
