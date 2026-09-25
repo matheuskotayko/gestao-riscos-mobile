@@ -14,7 +14,6 @@ class PlanoAcao {
     this.ativo = true,
     this.atualizadoEm,
   });
-
   final int id;
   final String riscoUuid;
   final String tipoResposta;
@@ -28,7 +27,6 @@ class PlanoAcao {
   final String observacoes;
   final bool ativo;
   final String? atualizadoEm;
-
   static const tiposResposta = ['Mitigar', 'Evitar', 'Transferir', 'Aceitar'];
   static const statuses = [
     'Não iniciada',
@@ -36,7 +34,6 @@ class PlanoAcao {
     'Concluída',
     'Atrasada',
   ];
-
   factory PlanoAcao.fromJson(Map<String, dynamic> j) => PlanoAcao(
     id: (j['id'] as num).toInt(),
     riscoUuid: j['risco'] as String? ?? '',
@@ -52,7 +49,6 @@ class PlanoAcao {
     ativo: j['ativo'] as bool? ?? true,
     atualizadoEm: j['atualizado_em'] as String?,
   );
-
   Map<String, dynamic> toPayload() => {
     'risco': riscoUuid,
     'tipo_resposta': tipoResposta,

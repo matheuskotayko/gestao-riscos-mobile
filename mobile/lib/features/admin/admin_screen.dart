@@ -6,7 +6,6 @@ import 'unidades_screen.dart';
 
 class AdminScreen extends StatelessWidget {
   const AdminScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     final itens = [

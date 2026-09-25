@@ -18,8 +18,6 @@ import 'package:gestao_risco_mobile/data/services/token_service.dart';
 import 'package:gestao_risco_mobile/data/services/unidade_service.dart';
 import 'package:gestao_risco_mobile/data/sync/conectividade.dart';
 
-/// Prepara o ambiente de teste de widget: dotenv, secure storage e
-/// conectividade sem tocar em plataforma.
 void prepararAmbienteDeTeste({bool online = true, bool telaAlta = false}) {
   final b = TestWidgetsFlutterBinding.ensureInitialized();
   if (!dotenv.isInitialized) {
@@ -28,7 +26,6 @@ void prepararAmbienteDeTeste({bool online = true, bool telaAlta = false}) {
   FlutterSecureStorage.setMockInitialValues({});
   Conectividade.definirParaTeste(online: online);
   if (telaAlta) {
-    // superfície bem alta: todo o conteúdo de um ListView cabe sem scroll
     b.platformDispatcher.views.first.physicalSize = const Size(1200, 6000);
     b.platformDispatcher.views.first.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -38,8 +35,6 @@ void prepararAmbienteDeTeste({bool online = true, bool telaAlta = false}) {
   }
 }
 
-/// TokenService com uma sessão fake no secure storage mockado.
-/// `setores` vazio = gestor sem setor (não pode criar risco).
 TokenService tokensComUsuario({
   List<int> setores = const [1],
   bool admin = false,
@@ -108,13 +103,15 @@ Risco risco({
 });
 
 class FakeRiscoRepositorio extends Fake implements RiscoRepositorio {
-  FakeRiscoRepositorio({this.lista = const [], this.erroAoListar, this.detalhe});
-
+  FakeRiscoRepositorio({
+    this.lista = const [],
+    this.erroAoListar,
+    this.detalhe,
+  });
   List<Risco> lista;
   Object? erroAoListar;
   Risco? detalhe;
   int chamadasListar = 0;
-
   @override
   Future<List<Risco>> listar() async {
     chamadasListar++;
@@ -124,13 +121,11 @@ class FakeRiscoRepositorio extends Fake implements RiscoRepositorio {
 
   @override
   Future<Risco?> obter(String uuid) async => detalhe;
-
   @override
   Future<List<PlanoAcao>> acoes(String riscoUuid) async => const [];
-
   @override
-  Future<List<Monitoramento>> monitoramentos(String riscoUuid) async => const [];
-
+  Future<List<Monitoramento>> monitoramentos(String riscoUuid) async =>
+      const [];
   @override
   Future<List<HistoricoEntrada>> historico(String uuid) async => const [];
 }
@@ -175,12 +170,12 @@ Dashboard dashboardVazio() => Dashboard.fromJson(const {
   'matriz_residual': [],
   'riscos_prioritarios': [],
 });
-
-UnidadeModel unidade({int id = 1, String nome = 'CT'}) => UnidadeModel.fromJson({
-  'id': id,
-  'nome': nome,
-  'sigla': nome,
-  'sigla_centro': nome,
-  'nome_centro': nome,
-  'tipo_unidade': 'Departamento',
-});
+UnidadeModel unidade({int id = 1, String nome = 'CT'}) =>
+    UnidadeModel.fromJson({
+      'id': id,
+      'nome': nome,
+      'sigla': nome,
+      'sigla_centro': nome,
+      'nome_centro': nome,
+      'tipo_unidade': 'Departamento',
+    });

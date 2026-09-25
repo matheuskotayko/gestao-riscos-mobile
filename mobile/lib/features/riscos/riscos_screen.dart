@@ -30,13 +30,11 @@ class RiscosScreen extends StatefulWidget {
     this.pdi,
     this.tokens,
   });
-
   final RiscoRepositorio? repo;
   final ExportacaoService? exportacao;
   final UnidadeService? unidades;
   final PdiService? pdi;
   final TokenService? tokens;
-
   @override
   State<RiscosScreen> createState() => _RiscosScreenState();
 }
@@ -52,18 +50,14 @@ class _RiscosScreenState extends State<RiscosScreen> {
   final _scroll = ScrollController();
   final _buscaCtrl = TextEditingController();
   Timer? _debounce;
-
   UsuarioModel? _usuario;
   List<UnidadeModel> _unidades = [];
   FiltroRisco _filtro = const FiltroRisco();
-
   List<Risco> _todos = [];
   List<Risco> _riscos = [];
   bool _carregando = true;
   Object? _erro;
-
   StreamSubscription<EstadoSync>? _syncSub;
-
   @override
   void initState() {
     super.initState();
@@ -86,8 +80,6 @@ class _RiscosScreenState extends State<RiscosScreen> {
     _usuario = await _tokens.getUsuario();
     _carregarUnidades();
     await _recarregar();
-    // atualiza em segundo plano ao abrir; o listener de estado recarrega a
-    // lista quando o pull termina.
     unawaited(MotorSync.instance.sincronizar());
   }
 
@@ -95,12 +87,9 @@ class _RiscosScreenState extends State<RiscosScreen> {
     try {
       final u = await _unidadeService.listar();
       if (mounted) setState(() => _unidades = u);
-      // aquece o cache dos selects do formulário (para funcionar offline)
       unawaited(_pdi.objetivos());
       unawaited(_pdi.macroprocessos());
-    } catch (_) {
-      // filtro por unidade fica indisponível, mas a lista funciona
-    }
+    } catch (_) {}
   }
 
   Future<void> _recarregar() async {
@@ -131,7 +120,6 @@ class _RiscosScreenState extends State<RiscosScreen> {
   }
 
   void _reaplicarFiltro() => setState(() => _riscos = _filtro.aplicar(_todos));
-
   void _aoBuscar(String v) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 350), () {
@@ -297,7 +285,6 @@ class _RiscosScreenState extends State<RiscosScreen> {
     onDeleted: onRemover,
     visualDensity: VisualDensity.compact,
   );
-
   Widget _corpo() {
     if (_carregando) {
       return const SkeletonLista();
@@ -312,7 +299,8 @@ class _RiscosScreenState extends State<RiscosScreen> {
         detalhe: _filtro.temFiltroAtivo
             ? 'Nenhum resultado para os filtros atuais.'
             : 'Ainda não há riscos cadastrados.',
-        acao: (!_filtro.temFiltroAtivo && (_usuario?.setores.isNotEmpty ?? false))
+        acao:
+            (!_filtro.temFiltroAtivo && (_usuario?.setores.isNotEmpty ?? false))
             ? FilledButton.icon(
                 onPressed: _novoRisco,
                 icon: const Icon(Icons.add),
@@ -337,10 +325,8 @@ class _RiscosScreenState extends State<RiscosScreen> {
 
 class _RiscoCard extends StatelessWidget {
   const _RiscoCard({required this.risco, required this.onTap});
-
   final Risco risco;
   final VoidCallback onTap;
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -421,18 +407,15 @@ class _FiltroSheet extends StatefulWidget {
     required this.unidades,
     required this.podeVerInativos,
   });
-
   final FiltroRisco filtro;
   final List<UnidadeModel> unidades;
   final bool podeVerInativos;
-
   @override
   State<_FiltroSheet> createState() => _FiltroSheetState();
 }
 
 class _FiltroSheetState extends State<_FiltroSheet> {
   late FiltroRisco _f = widget.filtro;
-
   UnidadeModel? _unidadeSelecionada() {
     for (final u in widget.unidades) {
       if (u.id == _f.setorId) return u;

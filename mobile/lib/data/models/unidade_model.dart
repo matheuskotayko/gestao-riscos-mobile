@@ -1,4 +1,3 @@
-/// `Setor` no backend (tabela `setores`); alias público `UnidadeOrganizacional`.
 class UnidadeModel {
   const UnidadeModel({
     required this.id,
@@ -12,7 +11,6 @@ class UnidadeModel {
     this.labelCurto = '',
     this.labelCompleto = '',
   });
-
   final int id;
   final String nome;
   final String sigla;
@@ -23,9 +21,7 @@ class UnidadeModel {
   final bool ativo;
   final String labelCurto;
   final String labelCompleto;
-
   String get rotulo => labelCurto.isNotEmpty ? labelCurto : nome;
-
   factory UnidadeModel.fromJson(Map<String, dynamic> json) {
     return UnidadeModel(
       id: (json['id'] as num).toInt(),

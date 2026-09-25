@@ -8,11 +8,8 @@ import 'token_service.dart';
 
 class UsuarioService {
   UsuarioService(this._tokenService) : _client = ApiClient(_tokenService);
-
   final TokenService _tokenService;
   final ApiClient _client;
-
-  /// `GET /api/usuarios/me/` — também atualiza a sessão em cache.
   Future<UsuarioModel> me() async {
     try {
       final res = await _client.dio.get('/api/usuarios/me/');
@@ -24,7 +21,6 @@ class UsuarioService {
     }
   }
 
-  /// `PATCH /api/usuarios/me/` — e-mail e/ou troca de senha.
   Future<UsuarioModel> atualizarPerfil({
     String? email,
     String? senhaAtual,
@@ -46,9 +42,6 @@ class UsuarioService {
     }
   }
 
-  // --- Gestão administrativa (superusuário) ---
-
-  /// `GET /api/usuarios/gestores/` — lista todos, com busca e paginação.
   Future<PageResponse<UsuarioModel>> listarGestores({
     int page = 1,
     String? busca,
@@ -65,8 +58,6 @@ class UsuarioService {
       UsuarioModel.fromJson,
     );
   });
-
-  /// `POST /api/usuarios/registro/`
   Future<void> registrar({
     required String siape,
     required String nome,
@@ -87,8 +78,6 @@ class UsuarioService {
       },
     );
   });
-
-  /// `PATCH /api/usuarios/gestores/{uuid}/`
   Future<void> editarGestor(
     String uuid, {
     String? nome,
@@ -106,13 +95,9 @@ class UsuarioService {
       },
     );
   });
-
-  /// `DELETE /api/usuarios/gestores/{uuid}/` — soft delete.
   Future<void> desativarGestor(String uuid) => comApiError(() async {
     await _client.dio.delete('/api/usuarios/gestores/$uuid/');
   });
-
-  /// `POST /api/usuarios/gestores/{uuid}/reativar/`
   Future<void> reativarGestor(String uuid) => comApiError(() async {
     await _client.dio.post('/api/usuarios/gestores/$uuid/reativar/');
   });

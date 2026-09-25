@@ -8,22 +8,22 @@ import 'package:gestao_risco_mobile/widgets/estado.dart';
 import '../support/fakes.dart';
 
 Widget _tela(DashboardScreen s) => MaterialApp(home: s);
-
 void main() {
   setUp(() => prepararAmbienteDeTeste(online: false, telaAlta: true));
-
   testWidgets('erro vira EstadoErro com Retry', (tester) async {
-    await tester.pumpWidget(_tela(DashboardScreen(
-      service: FakeDashboardService(erro: ApiError('Falhou.')),
-      unidades: FakeUnidadeService(),
-      tokens: tokensComUsuario(),
-    )));
+    await tester.pumpWidget(
+      _tela(
+        DashboardScreen(
+          service: FakeDashboardService(erro: ApiError('Falhou.')),
+          unidades: FakeUnidadeService(),
+          tokens: tokensComUsuario(),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
-
     expect(find.byType(EstadoErro), findsOneWidget);
     expect(find.text('Falhou.'), findsOneWidget);
   });
-
   testWidgets('renderiza KPIs e seções a partir do serviço', (tester) async {
     final dados = Dashboard.fromJson(const {
       'total_planos': 9,
@@ -39,17 +39,20 @@ void main() {
       'matriz_residual': [],
       'riscos_prioritarios': [],
     });
-    await tester.pumpWidget(_tela(DashboardScreen(
-      service: FakeDashboardService(dados: dados),
-      unidades: FakeUnidadeService(),
-      tokens: tokensComUsuario(),
-    )));
+    await tester.pumpWidget(
+      _tela(
+        DashboardScreen(
+          service: FakeDashboardService(dados: dados),
+          unidades: FakeUnidadeService(),
+          tokens: tokensComUsuario(),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
-
-    expect(find.text('9'), findsOneWidget); // total de riscos
+    expect(find.text('9'), findsOneWidget);
     expect(find.text('Total de riscos'), findsOneWidget);
     expect(find.text('Riscos por nível'), findsOneWidget);
     expect(find.text('Distribuição por categoria'), findsOneWidget);
-    expect(find.text('Operacional'), findsOneWidget); // gráfico virou lista
+    expect(find.text('Operacional'), findsOneWidget);
   });
 }

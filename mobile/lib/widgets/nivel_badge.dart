@@ -4,14 +4,11 @@ import '../core/nivel_risco.dart';
 
 class NivelBadge extends StatelessWidget {
   const NivelBadge(this.nivel, {super.key, this.compacto = false});
-
   final int nivel;
   final bool compacto;
-
   @override
   Widget build(BuildContext context) {
     final faixa = FaixaNivel.of(nivel);
-    // O âmbar do nível "Moderado" não tem contraste com branco.
     final corTexto =
         ThemeData.estimateBrightnessForColor(faixa.cor) == Brightness.dark
         ? Colors.white

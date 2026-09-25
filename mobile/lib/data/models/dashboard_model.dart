@@ -7,14 +7,11 @@ class RiscosPorNivel {
     required this.moderado,
     required this.baixo,
   });
-
   final int extremo;
   final int alto;
   final int moderado;
   final int baixo;
-
   int get total => extremo + alto + moderado + baixo;
-
   factory RiscosPorNivel.fromJson(Map<String, dynamic> j) => RiscosPorNivel(
     extremo: (j['extremo'] as num?)?.toInt() ?? 0,
     alto: (j['alto'] as num?)?.toInt() ?? 0,
@@ -30,12 +27,10 @@ class StatusTratamentos {
     required this.atrasadas,
     required this.naoIniciadas,
   });
-
   final int emAndamento;
   final int concluidas;
   final int atrasadas;
   final int naoIniciadas;
-
   factory StatusTratamentos.fromJson(Map<String, dynamic> j) =>
       StatusTratamentos(
         emAndamento: (j['em_andamento'] as num?)?.toInt() ?? 0,
@@ -49,7 +44,6 @@ class CategoriaContagem {
   const CategoriaContagem(this.nome, this.quantidade);
   final String nome;
   final int quantidade;
-
   factory CategoriaContagem.fromJson(Map<String, dynamic> j) =>
       CategoriaContagem(
         j['nome'] as String? ?? '',
@@ -65,13 +59,11 @@ class UnidadeExposicao {
     required this.quantidadeRiscos,
     required this.criticos,
   });
-
   final int id;
   final String nome;
   final int pontos;
   final int quantidadeRiscos;
   final int criticos;
-
   factory UnidadeExposicao.fromJson(Map<String, dynamic> j) => UnidadeExposicao(
     id: (j['id'] as num?)?.toInt() ?? 0,
     nome: j['nome'] as String? ?? '',
@@ -88,12 +80,10 @@ class CelulaMatriz {
     required this.quantidade,
     required this.score,
   });
-
   final int probabilidade;
   final int impacto;
   final int quantidade;
   final int score;
-
   factory CelulaMatriz.fromJson(Map<String, dynamic> j) => CelulaMatriz(
     probabilidade: (j['probabilidade'] as num).toInt(),
     impacto: (j['impacto'] as num).toInt(),
@@ -109,12 +99,10 @@ class RiscoPrioritario {
     this.tipoResposta,
     this.statusTratamento,
   });
-
   final Risco risco;
   final String? responsavel;
   final String? tipoResposta;
   final String? statusTratamento;
-
   factory RiscoPrioritario.fromJson(Map<String, dynamic> j) => RiscoPrioritario(
     risco: Risco.fromJson(j),
     responsavel: j['responsavel'] as String?,
@@ -142,7 +130,6 @@ class Dashboard {
     required this.matrizResidual,
     required this.riscosPrioritarios,
   });
-
   final int totalPlanos;
   final int riscosCriticos;
   final RiscosPorNivel riscosPorNivel;
@@ -159,7 +146,6 @@ class Dashboard {
   final List<UnidadeExposicao> unidadesMaiorExposicao;
   final List<CelulaMatriz> matrizResidual;
   final List<RiscoPrioritario> riscosPrioritarios;
-
   static List<T> _lista<T>(
     dynamic raw,
     T Function(Map<String, dynamic>) fromJson,
@@ -167,7 +153,6 @@ class Dashboard {
       .whereType<Map<String, dynamic>>()
       .map(fromJson)
       .toList();
-
   factory Dashboard.fromJson(Map<String, dynamic> j) => Dashboard(
     totalPlanos: (j['total_planos'] as num?)?.toInt() ?? 0,
     riscosCriticos: (j['riscos_criticos'] as num?)?.toInt() ?? 0,

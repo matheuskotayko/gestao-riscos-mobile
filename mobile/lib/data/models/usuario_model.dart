@@ -1,7 +1,6 @@
 import '../../core/role.dart';
 import 'unidade_model.dart';
 
-/// Resposta de `GET /api/usuarios/me/` e do bloco `usuario` do login.
 class UsuarioModel {
   const UsuarioModel({
     required this.uuid,
@@ -15,7 +14,6 @@ class UsuarioModel {
     this.cargo = 'gestor',
     this.semEquipeDesde,
   });
-
   final String uuid;
   final int id;
   final String siape;
@@ -26,10 +24,8 @@ class UsuarioModel {
   final bool ativo;
   final String cargo;
   final DateTime? semEquipeDesde;
-
   Role get role => Role.from(cargo: cargo, isSuperuser: isSuperuser);
   List<int> get setoresIds => setores.map((s) => s.id).toList();
-
   factory UsuarioModel.fromJson(Map<String, dynamic> json) {
     return UsuarioModel(
       uuid: json['uuid'] as String? ?? '',

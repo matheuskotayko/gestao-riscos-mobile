@@ -5,8 +5,6 @@ import 'package:share_plus/share_plus.dart';
 
 import 'app_feedback.dart';
 
-/// Gera o arquivo de exportação (com feedback de progresso) e abre o
-/// share sheet do sistema.
 Future<void> exportarECompartilhar(
   BuildContext context,
   Future<File> Function() gerar,
@@ -18,7 +16,6 @@ Future<void> exportarECompartilhar(
       duration: Duration(seconds: 30),
     ),
   );
-
   File arquivo;
   try {
     arquivo = await gerar();
@@ -28,7 +25,6 @@ Future<void> exportarECompartilhar(
     return;
   }
   messenger.hideCurrentSnackBar();
-
   try {
     await SharePlus.instance.share(ShareParams(files: [XFile(arquivo.path)]));
   } catch (e) {

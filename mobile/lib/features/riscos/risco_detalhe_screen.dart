@@ -24,8 +24,6 @@ import '../monitoramentos/monitoramento_form_screen.dart';
 import '../planos_acao/plano_acao_form_screen.dart';
 import 'risco_form_screen.dart';
 
-/// Cor de texto/ícone sobre a AppBar (branco no tema claro, onSurface no
-/// escuro) — usada nas abas para não fixar branco.
 Color _corAppBar(BuildContext context) =>
     Theme.of(context).appBarTheme.foregroundColor ??
     Theme.of(context).colorScheme.onSurface;
@@ -38,12 +36,10 @@ class RiscoDetalheScreen extends StatefulWidget {
     this.exportacao,
     this.tokens,
   });
-
   final String uuid;
   final RiscoRepositorio? repo;
   final ExportacaoService? exportacao;
   final TokenService? tokens;
-
   @override
   State<RiscoDetalheScreen> createState() => _RiscoDetalheScreenState();
 }
@@ -53,24 +49,18 @@ class _RiscoDetalheScreenState extends State<RiscoDetalheScreen> {
   late final RiscoRepositorio _repo = widget.repo ?? RiscoRepositorio(_tokens);
   late final ExportacaoService _exportacao =
       widget.exportacao ?? ExportacaoService(_tokens);
-
   UsuarioModel? _usuario;
   Risco? _risco;
   List<PlanoAcao> _acoes = [];
   List<Monitoramento> _monitoramentos = [];
   List<HistoricoEntrada> _historico = [];
-
   bool _carregando = true;
   Object? _erro;
   bool _mudou = false;
-
-  /// Chave real após a carga (a tela pode ter sido aberta com a temporária).
   String get _uuid => _risco?.uuid ?? widget.uuid;
-
   bool get _podeEscrever =>
       _risco != null &&
       podeEscreverNoSetor(_risco!.setorId, _usuario?.setoresIds ?? const []);
-
   @override
   void initState() {
     super.initState();
@@ -86,7 +76,6 @@ class _RiscoDetalheScreenState extends State<RiscoDetalheScreen> {
       _usuario ??= await _tokens.getUsuario();
       final risco = await _repo.obter(widget.uuid);
       if (risco == null) throw Exception('Risco não encontrado no cache.');
-      // pode ter sido aberto com a chave temporária; usa o uuid resolvido
       final uuid = risco.uuid;
       final acoes = await _repo.acoes(uuid);
       final mons = await _repo.monitoramentos(uuid);
@@ -163,9 +152,7 @@ class _RiscoDetalheScreenState extends State<RiscoDetalheScreen> {
 
   Future<void> _novaAcao() async {
     final ok = await Navigator.of(context, rootNavigator: true).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => PlanoAcaoFormScreen(riscoUuid: _uuid),
-      ),
+      MaterialPageRoute(builder: (_) => PlanoAcaoFormScreen(riscoUuid: _uuid)),
     );
     if (ok == true) {
       _mudou = true;
@@ -361,12 +348,9 @@ class _RiscoDetalheScreenState extends State<RiscoDetalheScreen> {
   }
 }
 
-// ---------------------------------------------------------------------------
-
 class _AbaDados extends StatelessWidget {
   const _AbaDados({required this.risco});
   final Risco risco;
-
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -423,7 +407,7 @@ class _AbaDados extends StatelessWidget {
               context,
               'Coordenadas',
               '${risco.latitude!.toStringAsFixed(5)}, '
-              '${risco.longitude!.toStringAsFixed(5)}',
+                  '${risco.longitude!.toStringAsFixed(5)}',
             ),
             Align(
               alignment: Alignment.centerLeft,
@@ -485,7 +469,6 @@ class _AbaDados extends StatelessWidget {
 class _NivelResumo extends StatelessWidget {
   const _NivelResumo({required this.risco});
   final Risco risco;
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -537,8 +520,6 @@ class _NivelResumo extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-
 class _AbaLista extends StatelessWidget {
   const _AbaLista({
     required this.itens,
@@ -547,13 +528,11 @@ class _AbaLista extends StatelessWidget {
     required this.onNovo,
     required this.rotuloNovo,
   });
-
   final List<Widget> itens;
   final String vazio;
   final bool podeEscrever;
   final VoidCallback onNovo;
   final String rotuloNovo;
-
   @override
   Widget build(BuildContext context) {
     final margemBarra = MediaQuery.of(context).padding.bottom;
@@ -590,12 +569,10 @@ class _AcaoCard extends StatelessWidget {
     required this.onEditar,
     required this.onExcluir,
   });
-
   final PlanoAcao acao;
   final bool podeEscrever;
   final VoidCallback onEditar;
   final VoidCallback onExcluir;
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -658,7 +635,6 @@ class _AcaoCard extends StatelessWidget {
 class _StatusChip extends StatelessWidget {
   const _StatusChip(this.status);
   final String status;
-
   @override
   Widget build(BuildContext context) {
     final s = status.toLowerCase();
@@ -688,12 +664,10 @@ class _MonitoramentoCard extends StatelessWidget {
     required this.onEditar,
     required this.onExcluir,
   });
-
   final Monitoramento monitoramento;
   final bool podeEscrever;
   final VoidCallback onEditar;
   final VoidCallback onExcluir;
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -749,15 +723,12 @@ class _MonitoramentoCard extends StatelessWidget {
   );
 }
 
-/// Miniatura da foto de evidência; toca para abrir em tela cheia.
 class _FotoEvidencia extends StatelessWidget {
   const _FotoEvidencia({required this.monitoramento});
   final Monitoramento monitoramento;
-
   ImageProvider get _provider => monitoramento.fotoLocalPath != null
       ? FileImage(File(monitoramento.fotoLocalPath!))
       : NetworkImage(monitoramento.foto!) as ImageProvider;
-
   @override
   Widget build(BuildContext context) {
     final pendente = monitoramento.fotoLocalPath != null;
@@ -777,7 +748,8 @@ class _FotoEvidencia extends StatelessWidget {
               height: 64,
               width: 64,
               fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const Icon(Icons.broken_image_outlined),
+              errorBuilder: (_, _, _) =>
+                  const Icon(Icons.broken_image_outlined),
             ),
           ),
           const SizedBox(width: 8),
@@ -794,7 +766,6 @@ class _FotoEvidencia extends StatelessWidget {
 class _AbaHistorico extends StatelessWidget {
   const _AbaHistorico({required this.entradas});
   final List<HistoricoEntrada> entradas;
-
   @override
   Widget build(BuildContext context) {
     if (entradas.isEmpty) {

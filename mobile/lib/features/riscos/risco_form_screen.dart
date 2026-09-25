@@ -26,19 +26,13 @@ class RiscoFormScreen extends StatefulWidget {
     this.capturarLocal,
     this.resolverEndereco,
   });
-
   final Risco? risco;
   final RiscoRepositorio? repo;
   final PdiService? pdi;
   final UnidadeService? unidades;
   final TokenService? tokens;
-
-  /// Injetável em teste — captura da posição atual do GPS.
   final Future<Coordenada> Function()? capturarLocal;
-
-  /// Injetável em teste — geocoding reverso (coords -> endereço).
   final Future<String?> Function(double lat, double lng)? resolverEndereco;
-
   @override
   State<RiscoFormScreen> createState() => _RiscoFormScreenState();
 }
@@ -50,18 +44,14 @@ class _RiscoFormScreenState extends State<RiscoFormScreen> {
   late final PdiService _pdi = widget.pdi ?? PdiService(_tokens);
   late final UnidadeService _unidadeService =
       widget.unidades ?? UnidadeService(_tokens);
-
   bool get _edicao => widget.risco != null;
-
   bool _carregando = true;
   bool _salvando = false;
   bool _sujo = false;
   Object? _erroCarga;
-
   List<UnidadeModel> _setores = [];
   List<ObjetivoPdi> _objetivos = [];
   List<Macroprocesso> _macroprocessos = [];
-
   int? _setorId;
   int? _objetivoId;
   int? _macroprocessoId;
@@ -75,7 +65,6 @@ class _RiscoFormScreenState extends State<RiscoFormScreen> {
   double? _latitude, _longitude;
   String? _endereco;
   bool _capturandoLocal = false;
-
   @override
   void initState() {
     super.initState();
@@ -134,12 +123,10 @@ class _RiscoFormScreenState extends State<RiscoFormScreen> {
       final objetivos = await _pdi.objetivos();
       final macros = await _pdi.macroprocessos();
       if (!mounted) return;
-
       final meusIds = usuario?.setoresIds ?? const [];
       final setores = todosSetores
           .where((s) => meusIds.contains(s.id) || s.id == _setorId)
           .toList();
-
       setState(() {
         _setores = setores;
         _objetivos = objetivos;
@@ -459,7 +446,9 @@ class _RiscoFormScreenState extends State<RiscoFormScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.my_location),
-                label: Text(tem ? 'Atualizar localização' : 'Usar localização atual'),
+                label: Text(
+                  tem ? 'Atualizar localização' : 'Usar localização atual',
+                ),
               ),
             ),
           ],
@@ -479,7 +468,6 @@ class _RiscoFormScreenState extends State<RiscoFormScreen> {
           FormValidators.obrigatorio(v, label.replaceAll(' *', '')),
     ),
   );
-
   Widget _blocoEscala(
     String titulo, {
     required int prob,
@@ -524,7 +512,6 @@ class _RiscoFormScreenState extends State<RiscoFormScreen> {
     'Alto',
     'Muito alto',
   ];
-
   Widget _slider(String rotulo, int valor, ValueChanged<int> onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

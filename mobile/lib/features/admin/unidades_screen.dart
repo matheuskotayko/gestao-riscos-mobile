@@ -11,7 +11,6 @@ import 'unidade_form_screen.dart';
 
 class UnidadesScreen extends StatefulWidget {
   const UnidadesScreen({super.key});
-
   @override
   State<UnidadesScreen> createState() => _UnidadesScreenState();
 }
@@ -21,20 +20,17 @@ class _UnidadesScreenState extends State<UnidadesScreen> {
   final _scroll = ScrollController();
   final _buscaCtrl = TextEditingController();
   Timer? _debounce;
-
   final List<UnidadeModel> _unidades = [];
   List<String> _centros = [];
   List<String> _tipos = [];
   String? _busca;
   String? _centro;
   String? _tipo;
-
   int _page = 1;
   bool _temMais = false;
   bool _carregando = true;
   bool _carregandoMais = false;
   Object? _erro;
-
   @override
   void initState() {
     super.initState();

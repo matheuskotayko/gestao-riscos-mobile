@@ -20,7 +20,6 @@ void mostrarOk(BuildContext context, String msg) {
     ..showSnackBar(SnackBar(content: Text(msg)));
 }
 
-/// Diálogo de confirmação sim/não. Retorna `true` se confirmado.
 Future<bool> confirmar(
   BuildContext context, {
   required String titulo,

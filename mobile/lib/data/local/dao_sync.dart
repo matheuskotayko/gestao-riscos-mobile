@@ -13,7 +13,7 @@ extension RecursoTabela on Recurso {
     Recurso.monitoramento => 'cache_monitoramentos',
   };
   String get pk => this == Recurso.risco ? 'uuid' : 'id';
-  String get chaveApi => name; // 'risco' | 'acao' | 'monitoramento'
+  String get chaveApi => name;
 }
 
 class ItemFila {
@@ -26,15 +26,13 @@ class ItemFila {
     required this.baseAtualizadoEm,
     required this.tentativas,
   });
-
   final int seq;
   final Recurso recurso;
-  final String operacao; // 'criar' | 'atualizar' | 'excluir'
+  final String operacao;
   final String chave;
   final Map<String, dynamic>? payload;
   final String? baseAtualizadoEm;
   final int tentativas;
-
   factory ItemFila.fromRow(Map<String, Object?> r) => ItemFila(
     seq: r['seq'] as int,
     recurso: Recurso.values.byName(r['recurso'] as String),
@@ -51,11 +49,7 @@ class ItemFila {
 class DaoSync {
   DaoSync._();
   static final DaoSync instance = DaoSync._();
-
   Future<Database> get _db => Banco.instance.db;
-
-  // --- Leitura do cache ---
-
   Future<List<Map<String, dynamic>>> riscos() => _lista(Recurso.risco);
   Future<List<Map<String, dynamic>>> acoes() => _lista(Recurso.acao);
   Future<List<Map<String, dynamic>>> monitoramentos() =>
@@ -64,7 +58,6 @@ class DaoSync {
       _lista(Recurso.acao, uuid);
   Future<List<Map<String, dynamic>>> monitoramentosDoRisco(String uuid) =>
       _lista(Recurso.monitoramento, uuid);
-
   Future<Map<String, dynamic>?> risco(String uuid) async {
     final d = await _db;
     final rows = await d.query(
@@ -76,7 +69,6 @@ class DaoSync {
     return _comMeta(rows.first);
   }
 
-  /// linha do cache de um filho (acao/monitoramento) pela chave inteira.
   Future<Map<String, dynamic>?> porId(Recurso r, Object id) async {
     final d = await _db;
     final rows = await d.query(r.tabela, where: '${r.pk} = ?', whereArgs: [id]);
@@ -99,8 +91,6 @@ class DaoSync {
 
   Map<String, dynamic> _comMeta(Map<String, Object?> row) {
     final json = jsonDecode(row['json'] as String) as Map<String, dynamic>;
-    // autocura: o remapeamento pos-sync troca a chave da linha, mas pode
-    // ter deixado o id de fora do json — garante que fica consistente
     if (row['uuid'] != null) json['uuid'] ??= row['uuid'];
     if (row['id'] != null) json['id'] ??= row['id'];
     json['pendente_sync'] = (row['pendente'] as int? ?? 0) == 1;
@@ -122,12 +112,9 @@ class DaoSync {
     return (res.first['n'] as int?) ?? 0;
   }
 
-  // --- Escrita vinda do servidor (pull) ---
-
   Future<void> aplicarDoServidor(Recurso r, Map<String, dynamic> json) async {
     final d = await _db;
     final pk = json[r.pk];
-    // nao sobrescreve um registro que tem alteracao local ainda pendente
     final pendentes = await d.query(
       r.tabela,
       where: '${r.pk} = ? AND pendente = 1',
@@ -143,8 +130,6 @@ class DaoSync {
       'pendente': 0,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
-
-  // --- Escrita local otimista + fila ---
 
   Future<void> salvarLocal(
     Recurso r,
@@ -178,9 +163,6 @@ class DaoSync {
     await d.delete(r.tabela, where: '${r.pk} = ?', whereArgs: [chave]);
   }
 
-  /// enfileira uma mutacao, colapsando com o que ja tiver pendente pra
-  /// mesma chave — evita fila zoada depois de varias edicoes offline
-  /// seguidas (tipo editar o mesmo risco 3x sem internet).
   Future<void> enfileirar(
     Recurso r,
     String operacao,
@@ -195,7 +177,6 @@ class DaoSync {
       whereArgs: [r.name, chave],
       orderBy: 'seq',
     );
-
     if (operacao == 'excluir') {
       final temCriar = existentes.any((e) => e['operacao'] == 'criar');
       await d.delete(
@@ -208,7 +189,6 @@ class DaoSync {
       }
       return;
     }
-
     if (operacao == 'atualizar') {
       final criar = existentes.where((e) => e['operacao'] == 'criar').toList();
       if (criar.isNotEmpty) {
@@ -233,7 +213,6 @@ class DaoSync {
         return;
       }
     }
-
     await _inserirFila(d, r, operacao, chave, payload, baseAtualizadoEm);
   }
 
@@ -251,7 +230,6 @@ class DaoSync {
     'payload': payload == null ? null : jsonEncode(payload),
     'base_atualizado_em': base,
   });
-
   Future<List<ItemFila>> fila() async {
     final d = await _db;
     final rows = await d.query('fila_sync', orderBy: 'seq');
@@ -271,8 +249,6 @@ class DaoSync {
     );
   }
 
-  /// depois que um "criar" de risco sincroniza, troca a chave temporaria
-  /// pelo uuid real em todas as tabelas e nos itens da fila.
   Future<void> remapearRisco(String local, String real) async {
     final d = await _db;
     await d.transaction((t) async {
@@ -285,10 +261,14 @@ class DaoSync {
           ? <String, dynamic>{}
           : jsonDecode(atual.first['json'] as String) as Map<String, dynamic>;
       json['uuid'] = real;
-      // ja sincronizado — deixa o proximo aplicarDoServidor sobrescrever
       await t.update(
         'cache_riscos',
-        {'uuid': real, 'risco_uuid': real, 'json': jsonEncode(json), 'pendente': 0},
+        {
+          'uuid': real,
+          'risco_uuid': real,
+          'json': jsonEncode(json),
+          'pendente': 0,
+        },
         where: 'uuid = ?',
         whereArgs: [local],
       );
@@ -334,8 +314,6 @@ class DaoSync {
           );
         }
       }
-      // pra telas abertas ainda usando a chave temporaria conseguirem
-      // redirecionar pro uuid real
       await t.insert('cache_estatico', {
         'chave': 'remap:$local',
         'json': real,
@@ -343,7 +321,6 @@ class DaoSync {
     });
   }
 
-  /// uuid real de um risco criado offline, se ja tiver sincronizado.
   Future<String?> uuidRemapeado(String local) async {
     final d = await _db;
     final r = await d.query(

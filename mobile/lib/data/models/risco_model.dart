@@ -34,7 +34,6 @@ class Risco {
     this.atualizadoEm,
     this.pendenteSync = false,
   });
-
   final String uuid;
   final int setorId;
   final int objetivoId;
@@ -51,16 +50,10 @@ class Risco {
   final int probResidual;
   final int impResidual;
   final int nivelResidual;
-
-  /// Local onde o risco foi identificado (GPS). As duas andam juntas ou nenhuma.
   final double? latitude;
   final double? longitude;
-
-  /// Endereço aproximado (rua/bairro) resolvido no momento da captura.
   final String? endereco;
-
   bool get temLocalizacao => latitude != null && longitude != null;
-
   final UnidadeModel? setor;
   final ObjetivoPdi? objetivo;
   final Macroprocesso? macroprocesso;
@@ -68,22 +61,12 @@ class Risco {
   final String? periodoFim;
   final bool possuiPlanoAcao;
   final bool possuiMonitoramento;
-
-  /// `false` = registro desativado (soft delete). Usado pelo cache offline
-  /// para propagar a exclusão feita no servidor.
   final bool ativo;
-
-  /// `atualizado_em` do servidor (ISO 8601). Cursor do pull incremental e
-  /// versão-base enviada no PATCH para a checagem de concorrência.
   final String? atualizadoEm;
-
-  /// `true` quando há uma alteração local ainda não sincronizada.
   final bool pendenteSync;
-
   FaixaNivel get faixaInerente => FaixaNivel.of(nivelRisco);
   FaixaNivel get faixaResidual => FaixaNivel.of(nivelResidual);
   String get setorRotulo => setor?.rotulo ?? 'Setor $setorId';
-
   static const categorias = [
     'Operacional',
     'Estratégico',
@@ -92,7 +75,6 @@ class Risco {
     'Financeiro',
   ];
   static const eficacias = ['Inexistente', 'Fraco', 'Satisfatório', 'Forte'];
-
   factory Risco.fromJson(Map<String, dynamic> j) {
     final sd = j['setor_detalhes'];
     final od = j['objetivo_detalhes'];
@@ -132,9 +114,6 @@ class Risco {
       pendenteSync: j['pendente_sync'] as bool? ?? false,
     );
   }
-
-  /// Payload de criação/edição. Nunca envia `nivel_risco`/`nivel_residual`
-  /// (calculados no backend).
   Map<String, dynamic> toPayload() => {
     'setor': setorId,
     'objetivo': objetivoId,

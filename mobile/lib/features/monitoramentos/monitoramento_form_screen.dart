@@ -19,14 +19,10 @@ class MonitoramentoFormScreen extends StatefulWidget {
     this.repo,
     this.capturarFoto,
   });
-
   final String riscoUuid;
   final Monitoramento? monitoramento;
   final RiscoRepositorio? repo;
-
-  /// injetavel em teste — captura ou selecao da foto, devolve o caminho local.
   final Future<String?> Function(ImageSource)? capturarFoto;
-
   @override
   State<MonitoramentoFormScreen> createState() =>
       _MonitoramentoFormScreenState();
@@ -35,19 +31,14 @@ class MonitoramentoFormScreen extends StatefulWidget {
 class _MonitoramentoFormScreenState extends State<MonitoramentoFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final _repo = widget.repo ?? RiscoRepositorio(TokenService());
-
   bool get _edicao => widget.monitoramento != null;
   bool _salvando = false;
   bool _sujo = false;
   bool _capturandoFoto = false;
-
-  /// caminho da foto nova tirada nessa edicao (ainda nao enviada).
   String? _fotoPath;
-
   final _resultados = TextEditingController();
   final _acoesFuturas = TextEditingController();
   final _analise = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -71,7 +62,8 @@ class _MonitoramentoFormScreenState extends State<MonitoramentoFormScreen> {
   Future<void> _escolherFoto(ImageSource origem) async {
     setState(() => _capturandoFoto = true);
     try {
-      final capturar = widget.capturarFoto ??
+      final capturar =
+          widget.capturarFoto ??
           (ImageSource o) => tirarFotoEvidencia(origem: o);
       final caminho = await capturar(origem);
       if (!mounted) return;

@@ -10,40 +10,26 @@ import '../services/token_service.dart';
 import '../sync/conectividade.dart';
 import '../sync/motor_sync.dart';
 
-/// fonte unica do dominio de riscos pras telas. le sempre do cache local
-/// (sqflite) e dispara a sincronizacao em segundo plano. escritas sao
-/// otimistas: aplica no cache na hora e enfileira pro motor de sync mandar
-/// pro servidor depois.
 class RiscoRepositorio {
   RiscoRepositorio(TokenService tokens) : _riscos = RiscoService(tokens);
-
   final RiscoService _riscos;
   final _dao = DaoSync.instance;
-
   void _sincronizarEmFundo() {
     unawaited(MotorSync.instance.sincronizar());
   }
 
-  // --- Leitura ---
-
   Future<List<Risco>> listar() async {
     var linhas = await _dao.riscos();
     if (linhas.isEmpty && Conectividade.instance.online) {
-      // primeira carga: espera o pull terminar antes de mostrar a lista,
-      // senao a tela pisca vazia por um instante
       await MotorSync.instance.sincronizar();
       linhas = await _dao.riscos();
     }
-    // leitura pura do cache — quem quiser atualizar chama MotorSync.sincronizar
-    // na mao (abrir a tela, pull-to-refresh, reconexao). sincronizar aqui
-    // dentro a cada leitura criava um loop com o listener de estado da tela.
     return linhas.map(Risco.fromJson).toList();
   }
 
   Future<Risco?> obter(String uuid) async {
     final local = await _dao.risco(uuid);
     if (local != null) return Risco.fromJson(local);
-    // tela aberta com a chave temporaria de um risco que ja sincronizou
     if (uuid.startsWith('local-')) {
       final real = await _dao.uuidRemapeado(uuid);
       if (real != null) {
@@ -72,7 +58,6 @@ class RiscoRepositorio {
     return linhas.map(Monitoramento.fromJson).toList();
   }
 
-  /// historico e sempre online (log append-only, nao e critico ter offline).
   Future<List<HistoricoEntrada>> historico(String uuid) async {
     if (!Conectividade.instance.online) return const [];
     try {
@@ -82,20 +67,13 @@ class RiscoRepositorio {
     }
   }
 
-  /// duplicar so funciona online (o servidor cria a copia com os planos
-  /// de acao junto, nao da pra fazer isso local).
   Future<Risco> duplicar(String uuid) async {
     final r = await _riscos.duplicar(uuid);
     _sincronizarEmFundo();
     return r;
   }
 
-  // --- Escrita otimista ---
-
-  // negativo de proposito: id real do servidor sempre e positivo, entao um
-  // id temporario negativo nunca colide com um registro que ja veio de la
   int _tempId() => -DateTime.now().millisecondsSinceEpoch;
-
   Map<String, dynamic> _comNiveis(Map<String, dynamic> p) => {
     ...p,
     'nivel_risco':
@@ -104,7 +82,6 @@ class RiscoRepositorio {
         ((p['prob_residual'] as num?) ?? 0) *
         ((p['imp_residual'] as num?) ?? 0),
   };
-
   Future<void> criarRisco(Map<String, dynamic> payload) async {
     final chave = 'local-${DateTime.now().microsecondsSinceEpoch}';
     final json = _comNiveis(payload)
@@ -144,15 +121,11 @@ class RiscoRepositorio {
   Future<void> atualizarAcao(int id, Map<String, dynamic> payload) =>
       _atualizarFilho(Recurso.acao, id, payload);
   Future<void> desativarAcao(int id) => _desativarFilho(Recurso.acao, id);
-
   Future<void> criarMonitoramento(
     Map<String, dynamic> payload, {
     String? fotoLocalPath,
-  }) => _criarFilho(
-    Recurso.monitoramento,
-    payload,
-    fotoLocalPath: fotoLocalPath,
-  );
+  }) =>
+      _criarFilho(Recurso.monitoramento, payload, fotoLocalPath: fotoLocalPath);
   Future<void> atualizarMonitoramento(
     int id,
     Map<String, dynamic> payload, {
@@ -165,7 +138,6 @@ class RiscoRepositorio {
   );
   Future<void> desativarMonitoramento(int id) =>
       _desativarFilho(Recurso.monitoramento, id);
-
   Future<void> _criarFilho(
     Recurso r,
     Map<String, dynamic> payload, {

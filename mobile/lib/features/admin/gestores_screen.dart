@@ -11,7 +11,6 @@ import 'gestor_form_screen.dart';
 
 class GestoresScreen extends StatefulWidget {
   const GestoresScreen({super.key});
-
   @override
   State<GestoresScreen> createState() => _GestoresScreenState();
 }
@@ -21,7 +20,6 @@ class _GestoresScreenState extends State<GestoresScreen> {
   final _scroll = ScrollController();
   final _buscaCtrl = TextEditingController();
   Timer? _debounce;
-
   final List<UsuarioModel> _gestores = [];
   int _page = 1;
   bool _temMais = false;
@@ -29,7 +27,6 @@ class _GestoresScreenState extends State<GestoresScreen> {
   bool _carregandoMais = false;
   Object? _erro;
   String? _busca;
-
   @override
   void initState() {
     super.initState();

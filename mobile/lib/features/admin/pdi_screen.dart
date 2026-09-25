@@ -9,7 +9,6 @@ import '../../widgets/estado.dart';
 
 class PdiScreen extends StatelessWidget {
   const PdiScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -36,11 +35,8 @@ class PdiScreen extends StatelessWidget {
   }
 }
 
-// --------------------------------------------------------------------------
-
 class _AbaDesafios extends StatefulWidget {
   const _AbaDesafios();
-
   @override
   State<_AbaDesafios> createState() => _AbaDesafiosState();
 }
@@ -48,7 +44,6 @@ class _AbaDesafios extends StatefulWidget {
 class _AbaDesafiosState extends State<_AbaDesafios> {
   final _service = PdiService(TokenService());
   late Future<List<DesafioPdi>> _future;
-
   @override
   void initState() {
     super.initState();
@@ -56,7 +51,6 @@ class _AbaDesafiosState extends State<_AbaDesafios> {
   }
 
   void _recarregar() => setState(() => _future = _service.desafios());
-
   Future<void> _editar([DesafioPdi? d]) async {
     final numero = TextEditingController(text: d?.numero.toString() ?? '');
     final descricao = TextEditingController(text: d?.descricao ?? '');
@@ -116,11 +110,8 @@ class _AbaDesafiosState extends State<_AbaDesafios> {
   }
 }
 
-// --------------------------------------------------------------------------
-
 class _AbaMacroprocessos extends StatefulWidget {
   const _AbaMacroprocessos();
-
   @override
   State<_AbaMacroprocessos> createState() => _AbaMacroprocessosState();
 }
@@ -128,7 +119,6 @@ class _AbaMacroprocessos extends StatefulWidget {
 class _AbaMacroprocessosState extends State<_AbaMacroprocessos> {
   final _service = PdiService(TokenService());
   late Future<List<Macroprocesso>> _future;
-
   @override
   void initState() {
     super.initState();
@@ -136,7 +126,6 @@ class _AbaMacroprocessosState extends State<_AbaMacroprocessos> {
   }
 
   void _recarregar() => setState(() => _future = _service.macroprocessos());
-
   Future<void> _editar([Macroprocesso? m]) async {
     final nome = TextEditingController(text: m?.nome ?? '');
     final ok = await _dialogForm(
@@ -190,11 +179,8 @@ class _AbaMacroprocessosState extends State<_AbaMacroprocessos> {
   }
 }
 
-// --------------------------------------------------------------------------
-
 class _AbaObjetivos extends StatefulWidget {
   const _AbaObjetivos();
-
   @override
   State<_AbaObjetivos> createState() => _AbaObjetivosState();
 }
@@ -203,7 +189,6 @@ class _AbaObjetivosState extends State<_AbaObjetivos> {
   final _service = PdiService(TokenService());
   late Future<List<ObjetivoPdi>> _future;
   List<DesafioPdi> _desafios = [];
-
   @override
   void initState() {
     super.initState();
@@ -214,12 +199,10 @@ class _AbaObjetivosState extends State<_AbaObjetivos> {
   }
 
   void _recarregar() => setState(() => _future = _service.objetivos());
-
   Future<void> _editar([ObjetivoPdi? o]) async {
     final codigo = TextEditingController(text: o?.codigo ?? '');
     final descricao = TextEditingController(text: o?.descricao ?? '');
     int? desafioId = o?.desafioId;
-
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => StatefulBuilder(
@@ -319,8 +302,6 @@ class _AbaObjetivosState extends State<_AbaObjetivos> {
   }
 }
 
-// --------------------------------------------------------------------------
-
 class _ListaPdi<T> extends StatelessWidget {
   const _ListaPdi({
     required this.future,
@@ -330,14 +311,12 @@ class _ListaPdi<T> extends StatelessWidget {
     required this.onRemover,
     required this.onRefresh,
   });
-
   final Future<List<T>> future;
   final VoidCallback onNovo;
   final String Function(T) titulo;
   final void Function(T) onEditar;
   final void Function(T) onRemover;
   final VoidCallback onRefresh;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -2,34 +2,27 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Coordenada capturada pelo GPS do aparelho.
 typedef Coordenada = ({double latitude, double longitude});
-
-/// Pede permissão (se preciso) e lê a posição atual. Lança [String] com
-/// mensagem pronta para exibir quando o GPS está desligado ou a permissão
-/// foi negada.
 Future<Coordenada> capturarLocalizacao({
   Future<bool> Function()? servicoHabilitado,
   Future<LocationPermission> Function()? checarPermissao,
   Future<LocationPermission> Function()? pedirPermissao,
   Future<Position> Function()? posicaoAtual,
 }) async {
-  final habilitado =
-      servicoHabilitado ?? Geolocator.isLocationServiceEnabled;
+  final habilitado = servicoHabilitado ?? Geolocator.isLocationServiceEnabled;
   final checar = checarPermissao ?? Geolocator.checkPermission;
   final pedir = pedirPermissao ?? Geolocator.requestPermission;
-  final posicao = posicaoAtual ??
+  final posicao =
+      posicaoAtual ??
       () => Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              accuracy: LocationAccuracy.high,
-              timeLimit: Duration(seconds: 20),
-            ),
-          );
-
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 20),
+        ),
+      );
   if (!await habilitado()) {
     throw 'Ative o GPS do celular para registrar a localização.';
   }
-
   var permissao = await checar();
   if (permissao == LocationPermission.denied) {
     permissao = await pedir();
@@ -38,14 +31,10 @@ Future<Coordenada> capturarLocalizacao({
       permissao == LocationPermission.deniedForever) {
     throw 'Permissão de localização negada.';
   }
-
   final p = await posicao();
   return (latitude: p.latitude, longitude: p.longitude);
 }
 
-/// Endereço aproximado de uma coordenada (geocoder nativo do Android/iOS,
-/// sem API key). Devolve `null` se o geocoder não achar nada ou falhar —
-/// a UI cai de volta para só as coordenadas.
 Future<String?> enderecoDe(
   double latitude,
   double longitude, {
@@ -73,7 +62,6 @@ Future<String?> enderecoDe(
   }
 }
 
-/// Abre a localização no app de mapas do sistema (URI `geo:`). Sem SDK, sem key.
 Future<void> abrirNoMapa(double latitude, double longitude) async {
   final uri = Uri.parse(
     'geo:$latitude,$longitude?q=$latitude,$longitude(Risco)',

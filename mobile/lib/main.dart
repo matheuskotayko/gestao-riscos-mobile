@@ -15,7 +15,6 @@ Future<void> main() async {
 
 class GestaoRiscoApp extends StatelessWidget {
   const GestaoRiscoApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     final router = buildRouter(TokenService());

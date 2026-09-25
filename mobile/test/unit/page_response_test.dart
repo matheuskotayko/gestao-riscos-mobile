@@ -19,12 +19,10 @@ void main() {
         {'id': 2},
       ],
     }, _Item.fromJson);
-
     expect(page.count, 12);
     expect(page.results.map((e) => e.id), [1, 2]);
     expect(page.hasNext, isTrue);
   });
-
   test('fromDrf sem next não tem próxima página', () {
     final page = PageResponse.fromDrf({
       'count': 2,
@@ -33,7 +31,6 @@ void main() {
     }, _Item.fromJson);
     expect(page.hasNext, isFalse);
   });
-
   test('fromDrfAdmin usa page/total_pages', () {
     final page = PageResponse.fromDrfAdmin({
       'count': 40,
@@ -43,7 +40,6 @@ void main() {
         {'id': 9},
       ],
     }, _Item.fromJson);
-
     expect(page.page, 1);
     expect(page.totalPages, 2);
     expect(page.hasNext, isTrue);

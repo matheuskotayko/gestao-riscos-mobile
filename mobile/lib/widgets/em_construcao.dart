@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 
 class EmConstrucao extends StatelessWidget {
   const EmConstrucao(this.titulo, this.detalhe, {super.key});
-
   final String titulo;
   final String detalhe;
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
